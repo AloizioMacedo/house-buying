@@ -1,7 +1,7 @@
 # This is just an example configuration.
 # Use this as reference, and change its name to config.toml
 # if you want to use it as the pipeline config properly.
-# 
+
 [buyer]
 starting_money = 1_000_000
 money_saved_monthly = 10_000
