@@ -1,4 +1,4 @@
-from house_buying.calculations import calculate_left
+from house_buying.calculations import calculate_left, calculate_monthly_payment
 
 
 def test_calculate_left():
@@ -22,3 +22,12 @@ def test_calculate_left():
     # 638 -> 338
     # 338 + 33.8 = 371.8
     assert abs(calculate_left(300, 1000, 0.1, 3) - 371.8) < 0.001  # Float comparison
+
+
+def test_calculate_monthly_payment():
+    # Tests are based on the outputs of the following tool:
+    # https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormFinanciamentoPrestacoesFixas.do?method=exibirFormFinanciamentoPrestacoesFixas
+
+    assert abs(calculate_monthly_payment(600_000, 0.013, 60) - 14_463.60) < 0.1
+    assert abs(calculate_monthly_payment(455_232.55, 0.0119, 52) - 11_791.03) < 0.1
+    assert abs(calculate_monthly_payment(900_000, 0.0101, 240) - 9_985.17) < 0.1
