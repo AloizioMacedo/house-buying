@@ -3,7 +3,6 @@ from house_buying.calculations import calculate_money_timeseries_after_months
 from house_buying.config import load_config
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 
 CONFIG_PATH = Path(__file__).parent.joinpath("data", "config", "config.toml")
 OUTPUT_PATH = Path(__file__).parent.joinpath("data", "outputs")
