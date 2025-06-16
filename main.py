@@ -3,9 +3,30 @@ from house_buying.calculations import calculate_money_timeseries_after_months
 from house_buying.config import load_config
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+
 
 CONFIG_PATH = Path(__file__).parent.joinpath("data", "config", "config.toml")
 OUTPUT_PATH = Path(__file__).parent.joinpath("data", "outputs")
+
+
+def plot_and_save_timeseries(ser: pd.Series):
+    fig, ax = plt.subplots()
+    ser.plot(ax=ax, title="Money in Account", style="-")
+
+    ax.set_ylabel("Amount (R$)")
+    ax.set_xlabel("Date")
+    ax.grid(True, linestyle="--", alpha=0.6)
+    ax.set_title("Money in Account", fontsize=14)
+
+    ax.yaxis.set_major_formatter(mtick.StrMethodFormatter("R${x:,.2f}"))
+
+    plt.xticks(rotation=45)
+
+    plt.tight_layout()
+
+    fig.savefig(str(OUTPUT_PATH.joinpath("output.png")), dpi=300)
 
 
 def main():
@@ -22,8 +43,7 @@ def main():
         config.buyer.investment_monthly_interest,
     )
     ser = pd.Series(ts)
-    fig = ser.plot(title="Money in account").get_figure()
-    fig.savefig(str(OUTPUT_PATH.joinpath("output.png")))
+    plot_and_save_timeseries(ser)
 
 
 if __name__ == "__main__":
