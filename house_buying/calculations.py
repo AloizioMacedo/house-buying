@@ -100,7 +100,7 @@ def calculate_monthly_payment(
 def calculate_left(
     monthly_payment: float, total: float, monthly_interest: float, n_months: int
 ):
-    """Calculates how much money is left with a given monthly payment."""
+    """Calculates how much money is left to be paid with a given monthly payment."""
     left = total * (1 + monthly_interest)
     for _ in range(n_months):
         if left <= 0:
