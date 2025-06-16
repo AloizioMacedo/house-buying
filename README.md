@@ -13,3 +13,5 @@ python main.py
 
 in the root of the repo, keeping in mind the dependencies
 specified in pyproject.toml.
+
+Outputs will be spilled into `data/outputs`.
