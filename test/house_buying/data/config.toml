@@ -1,12 +1,12 @@
 [buyer]
 starting_money = 1_000_000
 money_saved_monthly = 10_000
-investment_monthly_interest = 0.1
+investment_monthly_interest = 0.01
 
 [house]
 house_price = 500_000
 down_payment = 150_000
-house_monthly_interest = 0.1
+house_monthly_interest = 0.01
 months_to_pay = 60
 
 [simulation]
