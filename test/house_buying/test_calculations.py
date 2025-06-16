@@ -1,7 +1,7 @@
 from house_buying.calculations import calculate_left
 
 
-def test_sanity_check():
+def test_calculate_left():
     # No interest, and no payment happening.
     assert calculate_left(0, 400_000, 0, 10) == 400_000
     assert calculate_left(0, 328_929, 0, 10) == 328_929
