@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
 
-CONFIG_PATH = Path(__file__).parent.joinpath("data", "config", "config.toml")
+CONFIG_PATH = Path(__file__).parent.joinpath("config", "config.toml")
 OUTPUT_PATH = Path(__file__).parent.joinpath("data", "outputs")
 
 

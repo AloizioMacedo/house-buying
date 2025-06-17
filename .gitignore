@@ -9,5 +9,5 @@ wheels/
 # Virtual environments
 .venv
 
-data/config/config.toml
+config/config.toml
 data/outputs
