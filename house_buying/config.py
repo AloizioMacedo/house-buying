@@ -13,10 +13,10 @@ class Buyer(BaseModel):
 
 
 class House(BaseModel):
-    house_price: float
-    down_payment: float
+    house_price: float | list[float]
+    down_payment: float | list[float]
+    months_to_pay: int | list[int]
     house_monthly_interest: float
-    months_to_pay: int
 
 
 class Config(BaseModel):

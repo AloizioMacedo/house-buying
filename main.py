@@ -11,7 +11,7 @@ CONFIG_PATH = Path(__file__).parent.joinpath("data", "config", "config.toml")
 OUTPUT_PATH = Path(__file__).parent.joinpath("data", "outputs")
 
 
-def plot_and_save_timeseries(ser: pd.Series):
+def plot_and_save_timeseries(ser: pd.Series, name: str = "output.png"):
     fig, ax = plt.subplots()
     ser.plot(ax=ax, title="Money in Account", style="-")
 
@@ -26,24 +26,46 @@ def plot_and_save_timeseries(ser: pd.Series):
 
     plt.tight_layout()
 
-    fig.savefig(str(OUTPUT_PATH.joinpath("output.png")), dpi=300)
+    fig.savefig(str(OUTPUT_PATH.joinpath(name)), dpi=300)
 
 
 def main():
     config = load_config(str(CONFIG_PATH))
 
-    ts = calculate_money_timeseries_after_months(
-        config.simulation.months_to_forecast,
-        config.buyer.starting_money,
-        config.house.down_payment,
-        config.house.house_price,
-        config.house.house_monthly_interest,
-        config.house.months_to_pay,
-        config.buyer.money_saved_monthly,
-        config.buyer.investment_monthly_interest,
+    down_payments = (
+        config.house.down_payment
+        if isinstance(config.house.down_payment, list)
+        else [float(config.house.down_payment)]
     )
-    ser = pd.Series(ts)
-    plot_and_save_timeseries(ser)
+    house_prices = (
+        config.house.house_price
+        if isinstance(config.house.house_price, list)
+        else [float(config.house.house_price)]
+    )
+    months_to_pay = (
+        config.house.months_to_pay
+        if isinstance(config.house.months_to_pay, list)
+        else [int(config.house.months_to_pay)]
+    )
+
+    for down_payment in down_payments:
+        for house_price in house_prices:
+            for months in months_to_pay:
+                ts = calculate_money_timeseries_after_months(
+                    config.simulation.months_to_forecast,
+                    config.buyer.starting_money,
+                    down_payment,
+                    house_price,
+                    config.house.house_monthly_interest,
+                    months,
+                    config.buyer.money_saved_monthly,
+                    config.buyer.investment_monthly_interest,
+                )
+                ser = pd.Series(ts)
+
+                plot_and_save_timeseries(
+                    ser, f"{int(house_price)}P_{int(down_payment)}D_{months}M.png"
+                )
 
 
 if __name__ == "__main__":
