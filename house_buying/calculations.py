@@ -55,7 +55,7 @@ def calculate_money_timeseries_after_months(
             money_left -= monthly_payment
 
         money_left = money_left * (1 + investment_monthly_interest) + (
-            liquid_salary - fixed_monthly_expenses - monthly_payment
+            liquid_salary - fixed_monthly_expenses
         )
         ts.append(money_left)
 
