@@ -130,7 +130,8 @@ def main():
                     house_price,
                     config.house.house_monthly_interest,
                     months,
-                    config.buyer.money_saved_monthly,
+                    config.buyer.liquid_salary,
+                    config.buyer.fixed_monthly_expenses,
                     config.buyer.investment_monthly_interest,
                 )
 

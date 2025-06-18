@@ -14,7 +14,8 @@ def calculate_money_timeseries_after_months(
     house_price: float,
     house_monthly_interest: float,
     n_months_to_pay: int,
-    money_saved_monthly: float,
+    liquid_salary: float,
+    fixed_monthly_expenses: float,
     investment_monthly_interest: float,
 ) -> SimulationOutput:
     """Gets the monthly timeseries of money on account after buying house.
@@ -30,9 +31,9 @@ def calculate_money_timeseries_after_months(
         house_monthly_interest: Monthly interest on which the financing
             is based upon.
         n_months_to_pay: How many months will the payment take.
-        money_saved_monthly: How much money you are able to save on a monthly
-            basis. Should include salary and other sources of income, but
-            not the profits of investments.
+        liquid_salary: Liquid monthly incoming money to the account
+        fixed_monthly_expenses: Monthly expenses other than the monthly
+            house payment.
         investment_monthly_interest: Interest of the investments you put
             your money on.
 
@@ -53,8 +54,8 @@ def calculate_money_timeseries_after_months(
         if i <= n_months_to_pay:
             money_left -= monthly_payment
 
-        money_left = (
-            money_left * (1 + investment_monthly_interest) + money_saved_monthly
+        money_left = money_left * (1 + investment_monthly_interest) + (
+            liquid_salary - fixed_monthly_expenses - monthly_payment
         )
         ts.append(money_left)
 

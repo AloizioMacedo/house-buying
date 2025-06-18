@@ -1,6 +1,7 @@
 [buyer]
 starting_money = 1_000_000
-money_saved_monthly = 10_000
+liquid_salary = 10_000
+fixed_monthly_expenses = 3_000
 investment_monthly_interest = 0.01
 
 [house]

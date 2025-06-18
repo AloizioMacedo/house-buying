@@ -8,8 +8,9 @@ class Simulation(BaseModel):
 
 class Buyer(BaseModel):
     starting_money: float
-    money_saved_monthly: float
     investment_monthly_interest: float
+    liquid_salary: float
+    fixed_monthly_expenses: float
 
 
 class House(BaseModel):
