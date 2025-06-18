@@ -1,32 +1,74 @@
 import pandas as pd
-from house_buying.calculations import calculate_money_timeseries_after_months
+import plotly.graph_objects as go
+
+from house_buying.calculations import (
+    SimulationOutput,
+    calculate_money_timeseries_after_months,
+)
 from house_buying.config import load_config
 from pathlib import Path
-
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
 
 
 CONFIG_PATH = Path(__file__).parent.joinpath("config", "config.toml")
 OUTPUT_PATH = Path(__file__).parent.joinpath("data", "outputs")
 
 
-def plot_and_save_timeseries(ser: pd.Series, name: str = "output.png"):
-    fig, ax = plt.subplots()
-    ser.plot(ax=ax, title="Money in Account", style="-")
+def plot_and_save_timeseries(
+    simulation_output: SimulationOutput, name: str = "output.html"
+):
+    ser = pd.Series(simulation_output.time_series)
 
-    ax.set_ylabel("Amount (R$)")
-    ax.set_xlabel("Date")
-    ax.grid(True, linestyle="--", alpha=0.6)
-    ax.set_title("Money in Account", fontsize=14)
+    initial_money = ser.iloc[0]
+    money_after_one_year = ser.iloc[min(len(ser) - 1, 4 * 12 - 1)]
+    money_after_five_years = ser.iloc[min(len(ser) - 1, 12 - 1)]
 
-    ax.yaxis.set_major_formatter(mtick.StrMethodFormatter("R${x:,.2f}"))
+    info_text = (
+        f"<b>Initial Money:</b> R${initial_money:,.2f}<br>"
+        f"<b>Monthly Payment:</b> R${simulation_output.monthly_payment:,.2f}<br>"
+        f"<b>Money After 1 Year:</b> R${money_after_one_year:,.2f}<br>"
+        f"<b>Money After 5 Years:</b> R${money_after_five_years:,.2f}"
+    )
 
-    plt.xticks(rotation=45)
+    fig = go.Figure()
 
-    plt.tight_layout()
+    fig.add_trace(
+        go.Scatter(
+            x=ser.index,
+            y=ser.values,
+            mode="lines+markers",
+            name="Money in Account",
+            hovertemplate="Month: %{x}<br>Amount: R$%{y:,.2f}<extra></extra>",
+        )
+    )
 
-    fig.savefig(str(OUTPUT_PATH.joinpath(name)), dpi=300)
+    # Add annotation box on the right
+    fig.add_annotation(
+        text=info_text,
+        xref="paper",
+        yref="paper",
+        x=1.05,
+        y=0.5,
+        showarrow=False,
+        align="left",
+        bordercolor="black",
+        borderwidth=1,
+        bgcolor="white",
+        font=dict(size=12),
+    )
+
+    fig.update_layout(
+        title="Money in Account",
+        xaxis_title="Date",
+        yaxis_title="Amount (R$)",
+        yaxis_tickprefix="R$",
+        yaxis_tickformat=", .2f",
+        template="plotly_white",
+        autosize=True,
+        margin=dict(r=150),
+    )
+
+    OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
+    fig.write_html(OUTPUT_PATH.joinpath(name))
 
 
 def main():
@@ -51,7 +93,7 @@ def main():
     for down_payment in down_payments:
         for house_price in house_prices:
             for months in months_to_pay:
-                ts = calculate_money_timeseries_after_months(
+                output = calculate_money_timeseries_after_months(
                     config.simulation.months_to_forecast,
                     config.buyer.starting_money,
                     down_payment,
@@ -61,10 +103,9 @@ def main():
                     config.buyer.money_saved_monthly,
                     config.buyer.investment_monthly_interest,
                 )
-                ser = pd.Series(ts)
 
                 plot_and_save_timeseries(
-                    ser, f"{int(house_price)}P_{int(down_payment)}D_{months}M.png"
+                    output, f"{int(house_price)}P_{int(down_payment)}D_{months}M.html"
                 )
 
 
