@@ -40,8 +40,8 @@ def plot_and_save_timeseries(
     ser = pd.Series(simulation_output.time_series)
 
     initial_money = ser.iloc[0]
-    money_after_one_year = ser.iloc[min(len(ser) - 1, 4 * 12 - 1)]
-    money_after_five_years = ser.iloc[min(len(ser) - 1, 12 - 1)]
+    money_after_one_year = ser.iloc[min(len(ser) - 1, 12 - 1)]
+    money_after_five_years = ser.iloc[min(len(ser) - 1, 4 * 12 - 1)]
 
     info_text = (
         f"{'<b>Initial Money:</b>':<20} R${initial_money:>20,.2f}<br>"
