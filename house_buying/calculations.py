@@ -1,3 +1,12 @@
+from dataclasses import dataclass
+
+
+@dataclass(slots=True)
+class SimulationOutput:
+    time_series: list[float]
+    monthly_payment: float
+
+
 def calculate_money_timeseries_after_months(
     months_to_forecast: int,
     starting_money: float,
@@ -7,7 +16,7 @@ def calculate_money_timeseries_after_months(
     n_months_to_pay: int,
     money_saved_monthly: float,
     investment_monthly_interest: float,
-) -> list[float]:
+) -> SimulationOutput:
     """Gets the monthly timeseries of money on account after buying house.
 
     Args:
@@ -49,7 +58,10 @@ def calculate_money_timeseries_after_months(
         )
         ts.append(money_left)
 
-    return ts
+    return SimulationOutput(
+        time_series=ts,
+        monthly_payment=monthly_payment,
+    )
 
 
 def calculate_monthly_payment(
