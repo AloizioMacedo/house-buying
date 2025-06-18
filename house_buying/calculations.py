@@ -7,7 +7,7 @@ def calculate_money_timeseries_after_months(
     n_months_to_pay: int,
     money_saved_monthly: float,
     investment_monthly_interest: float,
-):
+) -> list[float]:
     """Gets the monthly timeseries of money on account after buying house.
 
     Args:
@@ -99,7 +99,7 @@ def calculate_monthly_payment(
 
 def calculate_left(
     monthly_payment: float, total: float, monthly_interest: float, n_months: int
-):
+) -> float:
     """Calculates how much money is left to be paid with a given monthly payment.
 
     If a greater than zero value is left at the end, it finishes
