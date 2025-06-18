@@ -12,6 +12,27 @@ from pathlib import Path
 CONFIG_PATH = Path(__file__).parent.joinpath("config", "config.toml")
 OUTPUT_PATH = Path(__file__).parent.joinpath("data", "outputs")
 
+_INITIAL_MONEY = "Initial Money"
+_MONTHLY_PAYMENT = "Monthly Payment"
+_MONEY_AFTER_ONE_YEAR = "Money After 1 Year"
+_MONEY_AFTER_FIVE_YEARS = "Money After 5 Years"
+
+_VALUES_DESCRIPTIONS = [
+    _INITIAL_MONEY,
+    _MONTHLY_PAYMENT,
+    _MONEY_AFTER_ONE_YEAR,
+    _MONEY_AFTER_FIVE_YEARS,
+]
+
+
+def _get_with_padding(s: str, extra_space: int = 4) -> str:
+    return (
+        "<b>"
+        + s
+        + "</b>:"
+        + " " * (extra_space + max(len(x) for x in _VALUES_DESCRIPTIONS) - len(s))
+    )
+
 
 def plot_and_save_timeseries(
     simulation_output: SimulationOutput, name: str = "output.html"
@@ -23,10 +44,19 @@ def plot_and_save_timeseries(
     money_after_five_years = ser.iloc[min(len(ser) - 1, 12 - 1)]
 
     info_text = (
-        f"<b>Initial Money:</b> R${initial_money:,.2f}<br>"
-        f"<b>Monthly Payment:</b> R${simulation_output.monthly_payment:,.2f}<br>"
-        f"<b>Money After 1 Year:</b> R${money_after_one_year:,.2f}<br>"
-        f"<b>Money After 5 Years:</b> R${money_after_five_years:,.2f}"
+        f"{'<b>Initial Money:</b>':<20} R${initial_money:>20,.2f}<br>"
+        f"{'<b>Monthly Payment:</b>':<20} R${simulation_output.monthly_payment:>20,.2f}<br>"
+        f"<b>Money After 1 Year:</b> R${money_after_one_year:>20,.2f}<br>"
+        f"<b>Money After 5 Years:</b> R${money_after_five_years:>20,.2f}"
+    )
+
+    info_text = (
+        "<span style='font-family: monospace'>"
+        f"{_get_with_padding(_INITIAL_MONEY)} R${initial_money:>,.2f}<br>"
+        f"{_get_with_padding(_MONTHLY_PAYMENT)} R${simulation_output.monthly_payment:,.2f}<br>"
+        f"{_get_with_padding(_MONEY_AFTER_ONE_YEAR)} R${money_after_one_year:,.2f}<br>"
+        f"{_get_with_padding(_MONEY_AFTER_FIVE_YEARS)} R${money_after_five_years:,.2f}"
+        "</span>"
     )
 
     fig = go.Figure()
