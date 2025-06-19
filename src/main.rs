@@ -53,6 +53,10 @@ impl eframe::App for MyApp {
                 egui::Slider::new(&mut self.buyer.investment_monthly_interest, 0.0..=1.0)
                     .text("Investment Monthly Interest"),
             );
+            ui.add(
+                egui::Slider::new(&mut self.buyer.yearly_bonus, 0.0..=2_000_000.0)
+                    .text("Yearly Bonus"),
+            );
             ui.heading("House Params");
             ui.add(
                 egui::Slider::new(&mut self.house.house_price, 0.0..=2_000_000.0)
@@ -67,6 +71,10 @@ impl eframe::App for MyApp {
                     .text("House Monthly Interest"),
             );
             ui.add(egui::Slider::new(&mut self.house.months_to_pay, 1..=360).text("Months To Pay"));
+            ui.add(
+                egui::Slider::new(&mut self.house.annual_ammortization, 0.0..=2_000_000.0)
+                    .text("Annual Ammortization"),
+            );
             ui.heading("Simulation");
             ui.add(
                 egui::Slider::new(&mut self.simulation.months_to_forecast, 1..=720)
@@ -83,6 +91,8 @@ impl eframe::App for MyApp {
                 self.buyer.liquid_salary,
                 self.buyer.fixed_monthly_expenses,
                 self.buyer.investment_monthly_interest,
+                self.buyer.yearly_bonus,
+                self.house.annual_ammortization,
             );
             Grid::new("grid").show(ui, |ui| {
                 ui.label("Initial Money:");

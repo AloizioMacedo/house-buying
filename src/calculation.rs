@@ -19,6 +19,8 @@ pub(crate) fn calculate_money_timeseries_after_months(
     liquid_salary: f64,
     fixed_monthly_expenses: f64,
     investment_monthly_interest: f64,
+    yearly_bonus: f64,
+    annual_amortization: f64,
 ) -> SimulationOutput {
     let mut time_series: Vec<f64> = Vec::new();
 
@@ -35,12 +37,26 @@ pub(crate) fn calculate_money_timeseries_after_months(
     );
 
     for i in 0..months_to_forecast {
+        let is_end_of_year = i % 12 == 0 && i > 0;
+
+        // Subtractions are done before to safely underestimate returns.
         if i <= n_months_to_pay {
             money_left -= monthly_payment;
         }
 
+        if is_end_of_year {
+            money_left -= annual_amortization;
+        }
+
+        money_left -= fixed_monthly_expenses;
+
         money_left *= 1.0 + investment_monthly_interest;
-        money_left += liquid_salary - fixed_monthly_expenses;
+
+        money_left += liquid_salary;
+
+        if is_end_of_year {
+            money_left += yearly_bonus;
+        }
 
         time_series.push(money_left);
     }

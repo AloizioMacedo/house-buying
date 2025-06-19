@@ -3,6 +3,7 @@ pub(crate) struct Buyer {
     pub(crate) liquid_salary: f64,
     pub(crate) fixed_monthly_expenses: f64,
     pub(crate) investment_monthly_interest: f64,
+    pub(crate) yearly_bonus: f64,
 }
 
 impl Default for Buyer {
@@ -12,6 +13,7 @@ impl Default for Buyer {
             liquid_salary: 20_000.0,
             fixed_monthly_expenses: 7_000.0,
             investment_monthly_interest: 0.01,
+            yearly_bonus: 0.0,
         }
     }
 }
@@ -20,6 +22,7 @@ pub(crate) struct House {
     pub(crate) house_price: f64,
     pub(crate) down_payment: f64,
     pub(crate) house_monthly_interest: f64,
+    pub(crate) annual_ammortization: f64,
     pub(crate) months_to_pay: i32,
 }
 
@@ -29,6 +32,7 @@ impl Default for House {
             house_price: 600_000.0,
             down_payment: 150_000.0,
             house_monthly_interest: 0.01,
+            annual_ammortization: 0.0,
             months_to_pay: 120,
         }
     }
