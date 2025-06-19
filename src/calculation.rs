@@ -197,7 +197,6 @@ mod tests {
     fn test_calculate_monthly_payment() {
         // Tests are based on the outputs of the following tool:
         // https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormFinanciamentoPrestacoesFixas.do?method=exibirFormFinanciamentoPrestacoesFixas
-        //
         assert!(
             (calculate_monthly_payment_price_table(
                 600_000.0,
@@ -234,5 +233,18 @@ mod tests {
                 .abs()
                 < 0.1
         );
+    }
+
+    #[test]
+    fn test_calculate_monthly_payment_sac() {
+        // Test is based on the calculation in the following wikipedia article:
+        // https://pt.wikipedia.org/wiki/Sistema_de_amortiza%C3%A7%C3%A3o_constante
+
+        let payments = calculate_monthly_payments_sac_table(1_000.0, 0.03, 4);
+
+        assert!((payments[0] - 280.0).abs() < 0.01);
+        assert!((payments[1] - 272.50).abs() < 0.01);
+        assert!((payments[2] - 265.0).abs() < 0.01);
+        assert!((payments[3] - 257.5).abs() < 0.01);
     }
 }
