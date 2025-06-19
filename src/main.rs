@@ -3,7 +3,9 @@ mod calculation;
 mod model;
 mod plotting;
 
-use calculation::{AmortizationStrategy, calculate_money_timeseries_after_months};
+use calculation::{
+    AmortizationStrategyType, calculate_money_timeseries_price, calculate_money_timeseries_sac,
+};
 use eframe::egui;
 use egui::Grid;
 use egui_plot::{Legend, Line, PlotPoints};
@@ -31,7 +33,8 @@ struct MyApp {
     buyer: model::Buyer,
     house: model::House,
     simulation: model::Simulation,
-    strategy: calculation::AmortizationStrategy,
+
+    strategy: calculation::AmortizationStrategyType,
 }
 
 impl eframe::App for MyApp {
@@ -59,10 +62,22 @@ impl eframe::App for MyApp {
                     .text("Yearly Bonus"),
             );
             ui.heading("House Params");
-            ui.add(
-                egui::Slider::new(&mut self.house.house_price, 0.0..=2_000_000.0)
-                    .text("House Price"),
-            );
+            ui.horizontal(|ui| {
+                ui.add(
+                    egui::Slider::new(&mut self.house.house_price, 0.0..=2_000_000.0)
+                        .text("House Price"),
+                );
+                if matches!(self.strategy, AmortizationStrategyType::Sac) {
+                    ui.add(
+                        egui::Slider::new(
+                            &mut self.house.yearly_extra_amortization,
+                            0.0..=2_000_000.0,
+                        )
+                        .text("Yearly Extra Amortization"),
+                    );
+                }
+            });
+
             ui.add(
                 egui::Slider::new(&mut self.house.down_payment, 0.0..=2_000_000.0)
                     .text("Down Payment"),
@@ -79,27 +94,46 @@ impl eframe::App for MyApp {
             );
 
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut self.strategy, AmortizationStrategy::Sac, "Tabela SAC");
                 ui.selectable_value(
                     &mut self.strategy,
-                    AmortizationStrategy::Price,
+                    AmortizationStrategyType::Sac,
+                    "Tabela SAC",
+                );
+                ui.selectable_value(
+                    &mut self.strategy,
+                    AmortizationStrategyType::Price,
                     "Tabela PRICE",
                 );
             });
 
-            let sim_output = calculate_money_timeseries_after_months(
-                self.simulation.months_to_forecast,
-                self.buyer.starting_money,
-                self.house.down_payment,
-                self.house.house_price,
-                self.house.house_monthly_interest,
-                self.house.months_to_pay,
-                self.buyer.liquid_salary,
-                self.buyer.fixed_monthly_expenses,
-                self.buyer.investment_monthly_interest,
-                self.buyer.yearly_bonus,
-                self.strategy,
-            );
+            let sim_output = match self.strategy {
+                AmortizationStrategyType::Price => calculate_money_timeseries_price(
+                    self.simulation.months_to_forecast,
+                    self.buyer.starting_money,
+                    self.house.down_payment,
+                    self.house.house_price,
+                    self.house.house_monthly_interest,
+                    self.house.months_to_pay,
+                    self.buyer.liquid_salary,
+                    self.buyer.fixed_monthly_expenses,
+                    self.buyer.investment_monthly_interest,
+                    self.buyer.yearly_bonus,
+                ),
+                AmortizationStrategyType::Sac => calculate_money_timeseries_sac(
+                    self.simulation.months_to_forecast,
+                    self.buyer.starting_money,
+                    self.house.down_payment,
+                    self.house.house_price,
+                    self.house.house_monthly_interest,
+                    self.house.months_to_pay,
+                    self.buyer.liquid_salary,
+                    self.buyer.fixed_monthly_expenses,
+                    self.buyer.investment_monthly_interest,
+                    self.buyer.yearly_bonus,
+                    self.house.yearly_extra_amortization,
+                ),
+            };
+
             Grid::new("grid").show(ui, |ui| {
                 ui.label("Initial Money:");
                 ui.label(format!(
@@ -110,7 +144,7 @@ impl eframe::App for MyApp {
 
                 ui.label("Monthly Payment:");
                 match self.strategy {
-                    AmortizationStrategy::Sac => {
+                    AmortizationStrategyType::Sac => {
                         ui.label(format!(
                             "First: R$ {};",
                             format_with_thousands_separator(sim_output.monthly_payments[0])
@@ -143,7 +177,7 @@ impl eframe::App for MyApp {
                             )
                         ));
                     }
-                    AmortizationStrategy::Price => {
+                    AmortizationStrategyType::Price => {
                         ui.label(format!(
                             "R$ {}",
                             format_with_thousands_separator(sim_output.monthly_payments[0])

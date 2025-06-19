@@ -3,7 +3,7 @@ const MAX_ITERS: i32 = 10_000;
 const UPPER_BOUND: f64 = 5_000_000.0;
 
 #[derive(Default, PartialEq, Eq, Clone, Copy)]
-pub(crate) enum AmortizationStrategy {
+pub(crate) enum AmortizationStrategyType {
     #[default]
     Sac,
     Price,
@@ -16,7 +16,7 @@ pub(crate) struct SimulationOutput {
 
 /// Gets the monthly timeseries of money on account after buying house.
 #[allow(clippy::too_many_arguments)]
-pub(crate) fn calculate_money_timeseries_after_months(
+pub(crate) fn calculate_money_timeseries_price(
     months_to_forecast: i32,
     starting_money: f64,
     down_payment: f64,
@@ -27,41 +27,88 @@ pub(crate) fn calculate_money_timeseries_after_months(
     fixed_monthly_expenses: f64,
     investment_monthly_interest: f64,
     yearly_bonus: f64,
-    amortization_strategy: AmortizationStrategy,
 ) -> SimulationOutput {
     let mut time_series: Vec<f64> = Vec::new();
 
     let mut money_left = starting_money - down_payment;
     time_series.push(money_left);
 
-    let monthly_payments = {
-        match amortization_strategy {
-            AmortizationStrategy::Price => {
-                let monthly_payment = calculate_monthly_payment_price_table(
-                    house_price - down_payment,
-                    house_monthly_interest,
-                    n_months_to_pay,
-                    ERR,
-                    MAX_ITERS,
-                    UPPER_BOUND,
-                );
-
-                vec![monthly_payment; n_months_to_pay as usize]
-            }
-            AmortizationStrategy::Sac => calculate_monthly_payments_sac_table(
-                house_price - down_payment,
-                house_monthly_interest,
-                n_months_to_pay,
-            ),
-        }
-    };
+    let monthly_payment = calculate_monthly_payment_price_table(
+        house_price - down_payment,
+        house_monthly_interest,
+        n_months_to_pay,
+        ERR,
+        MAX_ITERS,
+        UPPER_BOUND,
+    );
 
     for i in 0..(months_to_forecast as usize) {
         let is_end_of_year = i % 12 == 0 && i > 0;
 
         // Subtractions are done before to safely underestimate returns.
         if i < n_months_to_pay as usize {
-            money_left -= monthly_payments[i];
+            money_left -= monthly_payment;
+        }
+
+        money_left -= fixed_monthly_expenses;
+
+        money_left *= 1.0 + investment_monthly_interest;
+
+        money_left += liquid_salary;
+
+        if is_end_of_year {
+            money_left += yearly_bonus;
+        }
+
+        time_series.push(money_left);
+    }
+
+    SimulationOutput {
+        time_series,
+        monthly_payments: vec![monthly_payment; n_months_to_pay as usize],
+    }
+}
+
+/// Gets the monthly timeseries of money on account after buying house.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn calculate_money_timeseries_sac(
+    months_to_forecast: i32,
+    starting_money: f64,
+    down_payment: f64,
+    house_price: f64,
+    house_monthly_interest: f64,
+    n_months_to_pay: i32,
+    liquid_salary: f64,
+    fixed_monthly_expenses: f64,
+    investment_monthly_interest: f64,
+    yearly_bonus: f64,
+    yearly_extra_amortization: f64,
+) -> SimulationOutput {
+    let mut time_series: Vec<f64> = Vec::new();
+
+    let mut money_left = starting_money - down_payment;
+    let mut value_to_pay_left = house_price - down_payment;
+    time_series.push(money_left);
+
+    let monthly_amortization = value_to_pay_left / (n_months_to_pay as f64);
+    let mut monthly_payments = Vec::with_capacity(n_months_to_pay as usize);
+
+    for i in 0..(months_to_forecast as usize) {
+        let is_end_of_year = i % 12 == 0 && i > 0;
+
+        // Subtractions are done before to safely underestimate returns.
+        if i < n_months_to_pay as usize {
+            money_left -= value_to_pay_left * house_monthly_interest + monthly_amortization;
+
+            monthly_payments
+                .push(value_to_pay_left * house_monthly_interest + monthly_amortization);
+
+            value_to_pay_left -= monthly_amortization;
+        }
+
+        if is_end_of_year {
+            money_left -= yearly_extra_amortization;
+            value_to_pay_left -= yearly_extra_amortization;
         }
 
         money_left -= fixed_monthly_expenses;
@@ -129,7 +176,7 @@ fn calculate_monthly_payment_price_table(
 /// amortization value, in constrast with fixed monthly payments as in
 /// `Tabela PRICE`. This results in effectively different and decreasing
 /// monthly payments.
-fn calculate_monthly_payments_sac_table(
+fn _calculate_monthly_payments_sac_table(
     value: f64,
     monthly_interest: f64,
     n_months: i32,
@@ -240,7 +287,7 @@ mod tests {
         // Test is based on the calculation in the following wikipedia article:
         // https://pt.wikipedia.org/wiki/Sistema_de_amortiza%C3%A7%C3%A3o_constante
 
-        let payments = calculate_monthly_payments_sac_table(1_000.0, 0.03, 4);
+        let payments = _calculate_monthly_payments_sac_table(1_000.0, 0.03, 4);
 
         assert!((payments[0] - 280.0).abs() < 0.01);
         assert!((payments[1] - 272.50).abs() < 0.01);

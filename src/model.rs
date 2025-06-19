@@ -23,6 +23,7 @@ pub(crate) struct House {
     pub(crate) down_payment: f64,
     pub(crate) house_monthly_interest: f64,
     pub(crate) months_to_pay: i32,
+    pub(crate) yearly_extra_amortization: f64,
 }
 
 impl Default for House {
@@ -32,6 +33,7 @@ impl Default for House {
             down_payment: 150_000.0,
             house_monthly_interest: 0.01,
             months_to_pay: 120,
+            yearly_extra_amortization: 0.0,
         }
     }
 }
