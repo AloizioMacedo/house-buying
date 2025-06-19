@@ -107,14 +107,14 @@ fn calculate_monthly_payment(
 /// If a greater than zero value is left at the end, it finishes
 /// with the value considering a final computation of interest.
 fn calculate_left(monthly_payment: f64, total: f64, monthly_interest: f64, n_months: i32) -> f64 {
-    let mut left = total * (1.0 + monthly_interest);
+    let mut left = total;
 
     for _ in 0..n_months {
-        left -= monthly_payment;
-
         if left > 0.0 {
             left *= 1.0 + monthly_interest
         }
+
+        left -= monthly_payment;
     }
 
     left
