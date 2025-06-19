@@ -7,6 +7,7 @@ use calculation::calculate_money_timeseries_after_months;
 use eframe::egui;
 use egui::Grid;
 use egui_plot::{Legend, Line, PlotPoints};
+use plotting::format_with_thousands_separator;
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
@@ -86,17 +87,23 @@ impl eframe::App for MyApp {
             );
             Grid::new("grid").show(ui, |ui| {
                 ui.label("Initial Money:");
-                ui.label(format!("R$ {:.2}", sim_output.time_series[0]));
+                ui.label(format!(
+                    "R$ {}",
+                    format_with_thousands_separator(sim_output.time_series[0])
+                ));
                 ui.end_row();
 
                 ui.label("Monthly Payment:");
-                ui.label(format!("R$ {:.2}", sim_output.monthly_payment));
+                ui.label(format!(
+                    "R$ {}",
+                    format_with_thousands_separator(sim_output.monthly_payment)
+                ));
                 ui.end_row();
 
                 ui.label("Money After 1 Year:");
                 match sim_output.time_series.get(12 - 1) {
                     Some(v) => {
-                        ui.label(format!("R$ {:.2}", v));
+                        ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
                     }
                     None => {
                         ui.label("NaN");
@@ -107,7 +114,7 @@ impl eframe::App for MyApp {
                 ui.label("Money After 5 Years:");
                 match sim_output.time_series.get(4 * 12 - 1) {
                     Some(v) => {
-                        ui.label(format!("R$ {:.2}", v));
+                        ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
                     }
                     None => {
                         ui.label("NaN");
@@ -121,7 +128,7 @@ impl eframe::App for MyApp {
                 ));
                 match sim_output.time_series.last() {
                     Some(v) => {
-                        ui.label(format!("R$ {:.2}", v));
+                        ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
                     }
                     None => {
                         ui.label("NaN");
