@@ -1,32 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 mod calculation;
+mod model;
+mod plotting;
 
 use calculation::calculate_money_timeseries_after_months;
 use eframe::egui;
 use egui::Grid;
 use egui_plot::{Legend, Line, PlotPoints};
-
-fn format_y_axis(grid_mark: egui_plot::GridMark, _range: &std::ops::RangeInclusive<f64>) -> String {
-    let abs = grid_mark.value.abs() as u64;
-    let sign = if grid_mark.value < 0.0 { "-" } else { "" };
-    let formatted = format!("{abs}");
-
-    // Insert dots as thousand separators
-    let mut parts = Vec::new();
-    let mut chars = formatted.chars().rev().collect::<Vec<_>>();
-    while !chars.is_empty() {
-        let chunk: String = chars.drain(..chars.len().min(3)).collect();
-        parts.push(chunk);
-    }
-    let with_dots = parts
-        .into_iter()
-        .map(|s| s.chars().rev().collect::<String>())
-        .rev()
-        .collect::<Vec<_>>()
-        .join(".");
-
-    format!("{}${}", sign, with_dots)
-}
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
@@ -45,59 +25,11 @@ fn main() -> eframe::Result {
     )
 }
 
-struct Buyer {
-    starting_money: f64,
-    liquid_salary: f64,
-    fixed_monthly_expenses: f64,
-    investment_monthly_interest: f64,
-}
-
-impl Default for Buyer {
-    fn default() -> Self {
-        Buyer {
-            starting_money: 600_000.0,
-            liquid_salary: 20_000.0,
-            fixed_monthly_expenses: 7_000.0,
-            investment_monthly_interest: 0.01,
-        }
-    }
-}
-
-struct House {
-    house_price: f64,
-    down_payment: f64,
-    house_monthly_interest: f64,
-    months_to_pay: i32,
-}
-
-impl Default for House {
-    fn default() -> Self {
-        House {
-            house_price: 600_000.0,
-            down_payment: 150_000.0,
-            house_monthly_interest: 0.01,
-            months_to_pay: 120,
-        }
-    }
-}
-
-struct Simulation {
-    months_to_forecast: i32,
-}
-
-impl Default for Simulation {
-    fn default() -> Self {
-        Simulation {
-            months_to_forecast: 120,
-        }
-    }
-}
-
 #[derive(Default)]
 struct MyApp {
-    buyer: Buyer,
-    house: House,
-    simulation: Simulation,
+    buyer: model::Buyer,
+    house: model::House,
+    simulation: model::Simulation,
 }
 
 impl eframe::App for MyApp {
@@ -187,7 +119,7 @@ impl eframe::App for MyApp {
             let points = PlotPoints::from_ys_f64(&sim_output.time_series);
 
             egui_plot::Plot::new("plot")
-                .y_axis_formatter(format_y_axis)
+                .y_axis_formatter(plotting::format_y_axis)
                 .allow_zoom(false)
                 .allow_drag(false)
                 .allow_scroll(true)
