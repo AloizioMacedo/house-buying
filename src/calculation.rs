@@ -3,8 +3,8 @@ const MAX_ITERS: i32 = 10_000;
 const UPPER_BOUND: f64 = 100_000.0;
 
 pub(crate) struct SimulationOutput {
-    time_series: Vec<f64>,
-    monthly_payment: f64,
+    pub(crate) time_series: Vec<f64>,
+    pub(crate) monthly_payment: f64,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -40,6 +40,8 @@ pub(crate) fn calculate_money_timeseries_after_months(
 
         money_left *= 1.0 + investment_monthly_interest;
         money_left += liquid_salary - fixed_monthly_expenses;
+
+        time_series.push(money_left);
     }
 
     SimulationOutput {
@@ -64,6 +66,10 @@ fn calculate_monthly_payment(
         let current_error = calculate_left(c, value, monthly_interest, n_months);
 
         if current_error.abs() < err {
+            return c;
+        }
+
+        if current_error > 0.0 {
             a = c;
         } else {
             b = c;

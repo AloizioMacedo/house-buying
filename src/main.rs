@@ -3,12 +3,13 @@
 //
 mod calculation;
 
+use calculation::calculate_money_timeseries_after_months;
 use eframe::egui;
-use egui::RichText;
+use egui_plot::{Legend, Line, PlotPoints};
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 600.0]),
         ..Default::default()
     };
     eframe::run_native(
@@ -66,25 +67,11 @@ impl Default for Simulation {
     }
 }
 
+#[derive(Default)]
 struct MyApp {
-    name: String,
-    age: u32,
-
     buyer: Buyer,
     house: House,
     simulation: Simulation,
-}
-
-impl Default for MyApp {
-    fn default() -> Self {
-        Self {
-            name: "Arthur".to_owned(),
-            age: 42,
-            buyer: Buyer::default(),
-            house: House::default(),
-            simulation: Simulation::default(),
-        }
-    }
 }
 
 impl eframe::App for MyApp {
@@ -125,8 +112,35 @@ impl eframe::App for MyApp {
             ui.label("Simulation");
             ui.add(
                 egui::Slider::new(&mut self.simulation.months_to_forecast, 1..=720)
-                    .text("Months To Pay"),
+                    .text("Months To Simulate"),
             );
+
+            let sim_output = calculate_money_timeseries_after_months(
+                self.simulation.months_to_forecast,
+                self.buyer.starting_money,
+                self.house.down_payment,
+                self.house.house_price,
+                self.house.house_monthly_interest,
+                self.house.months_to_pay,
+                self.buyer.liquid_salary,
+                self.buyer.fixed_monthly_expenses,
+                self.buyer.investment_monthly_interest,
+            );
+            ui.label(format!(
+                "Monthly payment: R$ {}",
+                &sim_output.monthly_payment
+            ));
+
+            let points = PlotPoints::from_ys_f64(&sim_output.time_series);
+
+            egui_plot::Plot::new("plot")
+                .allow_zoom(false)
+                .allow_drag(false)
+                .allow_scroll(true)
+                .legend(Legend::default())
+                .show(ui, |plot_ui| {
+                    plot_ui.line(Line::new("Money in Account", points))
+                })
         });
     }
 }
