@@ -94,3 +94,54 @@ fn calculate_left(monthly_payment: f64, total: f64, monthly_interest: f64, n_mon
 
     left
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calculate_left() {
+        // No interest, and no payment happening.
+        assert_eq!(calculate_left(0.0, 400_000.0, 0.0, 10), 400_000.0);
+        assert_eq!(calculate_left(0.0, 328_929.0, 0.0, 10), 328_929.0);
+
+        // No interest, payments happening and finishing.
+        assert_eq!(calculate_left(10_000.0, 300_000.0, 0.0, 30), 0.0);
+        assert_eq!(calculate_left(20_000.0, 300_000.0, 0.0, 15), 0.0);
+
+        // No interest, value left.
+        assert_eq!(calculate_left(150.0, 1_000.0, 0.0, 5), 250.0);
+
+        // No interest, overpayment.
+        assert_eq!(calculate_left(300.0, 1_000.0, 0.0, 5), -500.0);
+
+        // With interest
+        // 1100 -> 800
+        // 880 -> 580
+        // 638 -> 338
+        // 338 + 33.8 = 371.8
+        assert!(calculate_left(300.0, 1_000.0, 0.1, 3) - 371.8 < 0.001);
+    }
+
+    #[test]
+    fn test_calculate_monthly_payment() {
+        assert!(
+            (calculate_monthly_payment(600_000.0, 0.013, 60, ERR, MAX_ITERS, UPPER_BOUND)
+                - 14_463.60)
+                .abs()
+                < 0.1
+        );
+        assert!(
+            (calculate_monthly_payment(455_232.55, 0.0119, 52, ERR, MAX_ITERS, UPPER_BOUND)
+                - 11_791.03)
+                .abs()
+                < 0.1
+        );
+        assert!(
+            (calculate_monthly_payment(900_000.0, 0.0101, 240, ERR, MAX_ITERS, UPPER_BOUND)
+                - 9_985.17)
+                .abs()
+                < 0.1
+        );
+    }
+}
