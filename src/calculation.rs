@@ -2,9 +2,16 @@ const ERR: f64 = 0.001;
 const MAX_ITERS: i32 = 10_000;
 const UPPER_BOUND: f64 = 5_000_000.0;
 
+#[derive(Default, PartialEq, Eq, Clone, Copy)]
+pub(crate) enum AmortizationStrategy {
+    #[default]
+    Sac,
+    Price,
+}
+
 pub(crate) struct SimulationOutput {
     pub(crate) time_series: Vec<f64>,
-    pub(crate) monthly_payment: f64,
+    pub(crate) monthly_payments: Vec<f64>,
 }
 
 /// Gets the monthly timeseries of money on account after buying house.
@@ -20,32 +27,41 @@ pub(crate) fn calculate_money_timeseries_after_months(
     fixed_monthly_expenses: f64,
     investment_monthly_interest: f64,
     yearly_bonus: f64,
-    annual_amortization: f64,
+    amortization_strategy: AmortizationStrategy,
 ) -> SimulationOutput {
     let mut time_series: Vec<f64> = Vec::new();
 
     let mut money_left = starting_money - down_payment;
     time_series.push(money_left);
 
-    let monthly_payment = calculate_monthly_payment(
-        house_price - down_payment,
-        house_monthly_interest,
-        n_months_to_pay,
-        ERR,
-        MAX_ITERS,
-        UPPER_BOUND,
-    );
+    let monthly_payments = {
+        match amortization_strategy {
+            AmortizationStrategy::Price => {
+                let monthly_payment = calculate_monthly_payment_price_table(
+                    house_price - down_payment,
+                    house_monthly_interest,
+                    n_months_to_pay,
+                    ERR,
+                    MAX_ITERS,
+                    UPPER_BOUND,
+                );
 
-    for i in 0..months_to_forecast {
+                vec![monthly_payment; n_months_to_pay as usize]
+            }
+            AmortizationStrategy::Sac => calculate_monthly_payments_sac_table(
+                house_price - down_payment,
+                house_monthly_interest,
+                n_months_to_pay,
+            ),
+        }
+    };
+
+    for i in 0..(months_to_forecast as usize) {
         let is_end_of_year = i % 12 == 0 && i > 0;
 
         // Subtractions are done before to safely underestimate returns.
-        if i <= n_months_to_pay {
-            money_left -= monthly_payment;
-        }
-
-        if is_end_of_year {
-            money_left -= annual_amortization;
+        if i < n_months_to_pay as usize {
+            money_left -= monthly_payments[i];
         }
 
         money_left -= fixed_monthly_expenses;
@@ -63,7 +79,7 @@ pub(crate) fn calculate_money_timeseries_after_months(
 
     SimulationOutput {
         time_series,
-        monthly_payment,
+        monthly_payments,
     }
 }
 
@@ -71,7 +87,11 @@ pub(crate) fn calculate_money_timeseries_after_months(
 ///
 /// Uses binary search to find the value. The last arguments are related to
 /// the abstract binary search itself, not the specifics of a loan/mortgage/etc.
-fn calculate_monthly_payment(
+///
+/// Uses the concept of the `French System of Amorization`, also known as
+/// `Tabela PRICE` in Brazil. This is characterized by having a fixed
+/// monthly payment, in contrast to SAC which has a fixed monthly amortization.
+fn calculate_monthly_payment_price_table(
     value: f64,
     monthly_interest: f64,
     n_months: i32,
@@ -100,6 +120,31 @@ fn calculate_monthly_payment(
     }
 
     c
+}
+
+/// Calculates the monthly payment of a given value with monthly interest.
+///
+/// Uses the concept of the `Constant Amortization`, also known as
+/// `Tabela SAC` in Brazil. This is characterized by having a fixed
+/// amortization value, in constrast with fixed monthly payments as in
+/// `Tabela PRICE`. This results in effectively different and decreasing
+/// monthly payments.
+fn calculate_monthly_payments_sac_table(
+    value: f64,
+    monthly_interest: f64,
+    n_months: i32,
+) -> Vec<f64> {
+    let monthly_amortization = value / (n_months as f64);
+    let mut monthly_payments = Vec::with_capacity(n_months as usize);
+
+    (0..n_months).fold(value, |value_left, _| {
+        let interest = value_left * monthly_interest;
+        monthly_payments.push(interest + monthly_amortization);
+
+        value_left - monthly_amortization
+    });
+
+    monthly_payments
 }
 
 /// Calculates how much money is left to be paid with a given monthly payment.
@@ -154,20 +199,38 @@ mod tests {
         // https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormFinanciamentoPrestacoesFixas.do?method=exibirFormFinanciamentoPrestacoesFixas
         //
         assert!(
-            (calculate_monthly_payment(600_000.0, 0.013, 60, ERR, MAX_ITERS, UPPER_BOUND)
-                - 14_463.60)
+            (calculate_monthly_payment_price_table(
+                600_000.0,
+                0.013,
+                60,
+                ERR,
+                MAX_ITERS,
+                UPPER_BOUND
+            ) - 14_463.60)
                 .abs()
                 < 0.1
         );
         assert!(
-            (calculate_monthly_payment(455_232.55, 0.0119, 52, ERR, MAX_ITERS, UPPER_BOUND)
-                - 11_791.03)
+            (calculate_monthly_payment_price_table(
+                455_232.55,
+                0.0119,
+                52,
+                ERR,
+                MAX_ITERS,
+                UPPER_BOUND
+            ) - 11_791.03)
                 .abs()
                 < 0.1
         );
         assert!(
-            (calculate_monthly_payment(900_000.0, 0.0101, 240, ERR, MAX_ITERS, UPPER_BOUND)
-                - 9_985.17)
+            (calculate_monthly_payment_price_table(
+                900_000.0,
+                0.0101,
+                240,
+                ERR,
+                MAX_ITERS,
+                UPPER_BOUND
+            ) - 9_985.17)
                 .abs()
                 < 0.1
         );

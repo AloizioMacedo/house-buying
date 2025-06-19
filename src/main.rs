@@ -3,7 +3,7 @@ mod calculation;
 mod model;
 mod plotting;
 
-use calculation::calculate_money_timeseries_after_months;
+use calculation::{AmortizationStrategy, calculate_money_timeseries_after_months};
 use eframe::egui;
 use egui::Grid;
 use egui_plot::{Legend, Line, PlotPoints};
@@ -31,6 +31,7 @@ struct MyApp {
     buyer: model::Buyer,
     house: model::House,
     simulation: model::Simulation,
+    strategy: calculation::AmortizationStrategy,
 }
 
 impl eframe::App for MyApp {
@@ -71,15 +72,20 @@ impl eframe::App for MyApp {
                     .text("House Monthly Interest"),
             );
             ui.add(egui::Slider::new(&mut self.house.months_to_pay, 1..=360).text("Months To Pay"));
-            ui.add(
-                egui::Slider::new(&mut self.house.annual_ammortization, 0.0..=2_000_000.0)
-                    .text("Annual Ammortization"),
-            );
             ui.heading("Simulation");
             ui.add(
                 egui::Slider::new(&mut self.simulation.months_to_forecast, 1..=720)
                     .text("Months To Simulate"),
             );
+
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut self.strategy, AmortizationStrategy::Sac, "Tabela SAC");
+                ui.selectable_value(
+                    &mut self.strategy,
+                    AmortizationStrategy::Price,
+                    "Tabela PRICE",
+                );
+            });
 
             let sim_output = calculate_money_timeseries_after_months(
                 self.simulation.months_to_forecast,
@@ -92,7 +98,7 @@ impl eframe::App for MyApp {
                 self.buyer.fixed_monthly_expenses,
                 self.buyer.investment_monthly_interest,
                 self.buyer.yearly_bonus,
-                self.house.annual_ammortization,
+                self.strategy,
             );
             Grid::new("grid").show(ui, |ui| {
                 ui.label("Initial Money:");
@@ -103,10 +109,47 @@ impl eframe::App for MyApp {
                 ui.end_row();
 
                 ui.label("Monthly Payment:");
-                ui.label(format!(
-                    "R$ {}",
-                    format_with_thousands_separator(sim_output.monthly_payment)
-                ));
+                match self.strategy {
+                    AmortizationStrategy::Sac => {
+                        ui.label(format!(
+                            "First: R$ {};",
+                            format_with_thousands_separator(sim_output.monthly_payments[0])
+                        ));
+                        if sim_output.monthly_payments.len() >= 12 {
+                            ui.label(format!(
+                                "One Year: R$ {};",
+                                format_with_thousands_separator(sim_output.monthly_payments[11])
+                            ));
+                        } else {
+                            ui.label("One Year: R$ NaN");
+                        }
+                        if sim_output.monthly_payments.len() >= 60 {
+                            ui.label(format!(
+                                "Five Years: R$ {};",
+                                format_with_thousands_separator(
+                                    sim_output.monthly_payments[60 - 1]
+                                )
+                            ));
+                        } else {
+                            ui.label("After One Year: R$ NaN");
+                        }
+                        ui.label(format!(
+                            "Last: R$ {}",
+                            format_with_thousands_separator(
+                                *sim_output
+                                    .monthly_payments
+                                    .last()
+                                    .expect("should have at least one monthly payment")
+                            )
+                        ));
+                    }
+                    AmortizationStrategy::Price => {
+                        ui.label(format!(
+                            "R$ {}",
+                            format_with_thousands_separator(sim_output.monthly_payments[0])
+                        ));
+                    }
+                }
                 ui.end_row();
 
                 ui.label("Money After 1 Year:");
@@ -121,7 +164,7 @@ impl eframe::App for MyApp {
                 ui.end_row();
 
                 ui.label("Money After 5 Years:");
-                match sim_output.time_series.get(4 * 12 - 1) {
+                match sim_output.time_series.get(5 * 12 - 1) {
                     Some(v) => {
                         ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
                     }

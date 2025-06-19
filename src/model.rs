@@ -22,7 +22,6 @@ pub(crate) struct House {
     pub(crate) house_price: f64,
     pub(crate) down_payment: f64,
     pub(crate) house_monthly_interest: f64,
-    pub(crate) annual_ammortization: f64,
     pub(crate) months_to_pay: i32,
 }
 
@@ -32,7 +31,6 @@ impl Default for House {
             house_price: 600_000.0,
             down_payment: 150_000.0,
             house_monthly_interest: 0.01,
-            annual_ammortization: 0.0,
             months_to_pay: 120,
         }
     }
