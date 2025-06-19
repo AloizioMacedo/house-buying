@@ -7,6 +7,7 @@ pub(crate) struct SimulationOutput {
     pub(crate) monthly_payment: f64,
 }
 
+/// Gets the monthly timeseries of money on account after buying house.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn calculate_money_timeseries_after_months(
     months_to_forecast: i32,
@@ -50,6 +51,10 @@ pub(crate) fn calculate_money_timeseries_after_months(
     }
 }
 
+/// Calculates the monthly payment of a given value with monthly interest.
+///
+/// Uses binary search to find the value. The last arguments are related to
+/// the abstract binary search itself, not the specifics of a loan/mortgage/etc.
 fn calculate_monthly_payment(
     value: f64,
     monthly_interest: f64,
@@ -81,6 +86,10 @@ fn calculate_monthly_payment(
     c
 }
 
+/// Calculates how much money is left to be paid with a given monthly payment.
+///
+/// If a greater than zero value is left at the end, it finishes
+/// with the value considering a final computation of interest.
 fn calculate_left(monthly_payment: f64, total: f64, monthly_interest: f64, n_months: i32) -> f64 {
     let mut left = total * (1.0 + monthly_interest);
 
@@ -125,6 +134,9 @@ mod tests {
 
     #[test]
     fn test_calculate_monthly_payment() {
+        // Tests are based on the outputs of the following tool:
+        // https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormFinanciamentoPrestacoesFixas.do?method=exibirFormFinanciamentoPrestacoesFixas
+        //
         assert!(
             (calculate_monthly_payment(600_000.0, 0.013, 60, ERR, MAX_ITERS, UPPER_BOUND)
                 - 14_463.60)
