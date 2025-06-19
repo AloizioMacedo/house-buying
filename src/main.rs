@@ -55,11 +55,11 @@ impl eframe::App for MyApp {
             );
             ui.heading("House Params");
             ui.add(
-                egui::Slider::new(&mut self.house.house_price, 100_000.0..=2_000_000.0)
+                egui::Slider::new(&mut self.house.house_price, 0.0..=2_000_000.0)
                     .text("House Price"),
             );
             ui.add(
-                egui::Slider::new(&mut self.house.down_payment, 10_000.0..=2_000_000.0)
+                egui::Slider::new(&mut self.house.down_payment, 0.0..=2_000_000.0)
                     .text("Down Payment"),
             );
             ui.add(
