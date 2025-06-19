@@ -36,8 +36,7 @@ struct MyApp {
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("House Buying");
-            ui.label("Buyer params");
+            ui.heading("Buyer params");
             ui.add(
                 egui::Slider::new(&mut self.buyer.starting_money, 0.0..=2_000_000.0)
                     .text("Starting Money"),
