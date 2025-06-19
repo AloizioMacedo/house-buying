@@ -1,6 +1,6 @@
 const ERR: f64 = 0.001;
 const MAX_ITERS: i32 = 10_000;
-const UPPER_BOUND: f64 = 100_000.0;
+const UPPER_BOUND: f64 = 5_000_000.0;
 
 pub(crate) struct SimulationOutput {
     pub(crate) time_series: Vec<f64>,
