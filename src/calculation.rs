@@ -12,6 +12,7 @@ pub(crate) enum AmortizationStrategyType {
 pub(crate) struct SimulationOutput {
     pub(crate) time_series: Vec<f64>,
     pub(crate) monthly_payments: Vec<f64>,
+    pub(crate) ends_after: i32,
 }
 
 /// Gets the monthly timeseries of money on account after buying house.
@@ -66,6 +67,7 @@ pub(crate) fn calculate_money_timeseries_price(
     SimulationOutput {
         time_series,
         monthly_payments: vec![monthly_payment; n_months_to_pay as usize],
+        ends_after: n_months_to_pay,
     }
 }
 
@@ -93,22 +95,33 @@ pub(crate) fn calculate_money_timeseries_sac(
     let monthly_amortization = value_to_pay_left / (n_months_to_pay as f64);
     let mut monthly_payments = Vec::with_capacity(n_months_to_pay as usize);
 
+    let mut ends_after = n_months_to_pay;
+
     for i in 0..(months_to_forecast as usize) {
-        let is_end_of_year = i % 12 == 0 && i > 0;
+        let is_end_of_year = (i + 1) % 12 == 0;
 
         // Subtractions are done before to safely underestimate returns.
-        if i < n_months_to_pay as usize {
-            money_left -= value_to_pay_left * house_monthly_interest + monthly_amortization;
+        if value_to_pay_left > 0.0 {
+            if i < n_months_to_pay as usize {
+                money_left -= value_to_pay_left * house_monthly_interest + monthly_amortization;
 
-            monthly_payments
-                .push(value_to_pay_left * house_monthly_interest + monthly_amortization);
+                monthly_payments
+                    .push(value_to_pay_left * house_monthly_interest + monthly_amortization);
 
-            value_to_pay_left -= monthly_amortization;
-        }
+                value_to_pay_left -= monthly_amortization;
+            }
 
-        if is_end_of_year {
-            money_left -= yearly_extra_amortization;
-            value_to_pay_left -= yearly_extra_amortization;
+            if is_end_of_year {
+                if yearly_extra_amortization >= value_to_pay_left {
+                    money_left -= value_to_pay_left;
+                    value_to_pay_left = 0.0;
+
+                    ends_after = (i + 1) as i32;
+                } else {
+                    money_left -= yearly_extra_amortization;
+                    value_to_pay_left -= yearly_extra_amortization;
+                }
+            }
         }
 
         money_left -= fixed_monthly_expenses;
@@ -127,6 +140,7 @@ pub(crate) fn calculate_money_timeseries_sac(
     SimulationOutput {
         time_series,
         monthly_payments,
+        ends_after,
     }
 }
 

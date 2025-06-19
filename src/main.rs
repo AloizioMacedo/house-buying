@@ -14,6 +14,7 @@ use plotting::format_with_thousands_separator;
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
+            .with_inner_size((1024.0, 768.0))
             .with_title("House Buying")
             .with_resizable(true)
             .with_visible(true)
@@ -165,10 +166,10 @@ impl eframe::App for MyApp {
                                 )
                             ));
                         } else {
-                            ui.label("After One Year: R$ NaN");
+                            ui.label("Five Years: R$ NaN;");
                         }
                         ui.label(format!(
-                            "Last: R$ {}",
+                            "Last: R$ {};",
                             format_with_thousands_separator(
                                 *sim_output
                                     .monthly_payments
@@ -176,6 +177,7 @@ impl eframe::App for MyApp {
                                     .expect("should have at least one monthly payment")
                             )
                         ));
+                        ui.label(format!("Ends after {} months", sim_output.ends_after));
                     }
                     AmortizationStrategyType::Price => {
                         ui.label(format!(
@@ -220,6 +222,7 @@ impl eframe::App for MyApp {
                         ui.label("NaN");
                     }
                 }
+
                 ui.end_row();
             });
 
