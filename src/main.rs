@@ -8,11 +8,16 @@ use egui_plot::{Legend, Line, PlotPoints};
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 600.0]),
+        viewport: egui::ViewportBuilder::default()
+            .with_title("House Buying")
+            .with_resizable(true)
+            .with_visible(true)
+            .with_maximized(true),
         ..Default::default()
     };
+
     eframe::run_native(
-        "My egui App",
+        "House Buying",
         options,
         Box::new(|_| Ok(Box::<MyApp>::default())),
     )
@@ -94,7 +99,7 @@ impl eframe::App for MyApp {
                 egui::Slider::new(&mut self.buyer.investment_monthly_interest, 0.0..=1.0)
                     .text("Investment Monthly Interest"),
             );
-            ui.label("House Params");
+            ui.heading("House Params");
             ui.add(
                 egui::Slider::new(&mut self.house.house_price, 100_000.0..=2_000_000.0)
                     .text("House Price"),
@@ -108,7 +113,7 @@ impl eframe::App for MyApp {
                     .text("House Monthly Interest"),
             );
             ui.add(egui::Slider::new(&mut self.house.months_to_pay, 1..=360).text("Months To Pay"));
-            ui.label("Simulation");
+            ui.heading("Simulation");
             ui.add(
                 egui::Slider::new(&mut self.simulation.months_to_forecast, 1..=720)
                     .text("Months To Simulate"),
@@ -135,11 +140,25 @@ impl eframe::App for MyApp {
                 ui.end_row();
 
                 ui.label("Money After 1 Year:");
-                ui.label(format!("R$ {:.2}", sim_output.time_series[12 - 1]));
+                match sim_output.time_series.get(12 - 1) {
+                    Some(v) => {
+                        ui.label(format!("R$ {:.2}", v));
+                    }
+                    None => {
+                        ui.label("NaN");
+                    }
+                }
                 ui.end_row();
 
-                ui.label("Money After 5 Year:");
-                ui.label(format!("R$ {:.2}", sim_output.time_series[4 * 12 - 1]));
+                ui.label("Money After 5 Years:");
+                match sim_output.time_series.get(4 * 12 - 1) {
+                    Some(v) => {
+                        ui.label(format!("R$ {:.2}", v));
+                    }
+                    None => {
+                        ui.label("NaN");
+                    }
+                }
                 ui.end_row();
             });
 
