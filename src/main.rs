@@ -6,6 +6,28 @@ use eframe::egui;
 use egui::Grid;
 use egui_plot::{Legend, Line, PlotPoints};
 
+fn format_y_axis(grid_mark: egui_plot::GridMark, _range: &std::ops::RangeInclusive<f64>) -> String {
+    let abs = grid_mark.value.abs() as u64;
+    let sign = if grid_mark.value < 0.0 { "-" } else { "" };
+    let formatted = format!("{abs}");
+
+    // Insert dots as thousand separators
+    let mut parts = Vec::new();
+    let mut chars = formatted.chars().rev().collect::<Vec<_>>();
+    while !chars.is_empty() {
+        let chunk: String = chars.drain(..chars.len().min(3)).collect();
+        parts.push(chunk);
+    }
+    let with_dots = parts
+        .into_iter()
+        .map(|s| s.chars().rev().collect::<String>())
+        .rev()
+        .collect::<Vec<_>>()
+        .join(".");
+
+    format!("{}${}", sign, with_dots)
+}
+
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
@@ -165,6 +187,7 @@ impl eframe::App for MyApp {
             let points = PlotPoints::from_ys_f64(&sim_output.time_series);
 
             egui_plot::Plot::new("plot")
+                .y_axis_formatter(format_y_axis)
                 .allow_zoom(false)
                 .allow_drag(false)
                 .allow_scroll(true)
