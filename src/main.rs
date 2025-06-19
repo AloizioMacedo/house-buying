@@ -146,10 +146,14 @@ impl eframe::App for MyApp {
                 ui.label("Monthly Payment:");
                 match self.strategy {
                     AmortizationStrategyType::Sac => {
-                        ui.label(format!(
-                            "First: R$ {};",
-                            format_with_thousands_separator(sim_output.monthly_payments[0])
-                        ));
+                        if !sim_output.monthly_payments.is_empty() {
+                            ui.label(format!(
+                                "First: R$ {};",
+                                format_with_thousands_separator(sim_output.monthly_payments[0])
+                            ));
+                        } else {
+                            ui.label("First: R$ NaN");
+                        }
                         if sim_output.monthly_payments.len() >= 12 {
                             ui.label(format!(
                                 "One Year: R$ {};",
@@ -168,15 +172,17 @@ impl eframe::App for MyApp {
                         } else {
                             ui.label("Five Years: R$ NaN;");
                         }
-                        ui.label(format!(
-                            "Last: R$ {};",
-                            format_with_thousands_separator(
-                                *sim_output
-                                    .monthly_payments
-                                    .last()
-                                    .expect("should have at least one monthly payment")
-                            )
-                        ));
+                        match sim_output.monthly_payments.last() {
+                            Some(v) => {
+                                ui.label(format!(
+                                    "Last: R$ {};",
+                                    format_with_thousands_separator(*v)
+                                ));
+                            }
+                            None => {
+                                ui.label("Last: R$ NaN");
+                            }
+                        }
                         ui.label(format!("Ends after {} months", sim_output.ends_after));
                     }
                     AmortizationStrategyType::Price => {
