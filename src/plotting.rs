@@ -6,7 +6,7 @@ pub(crate) fn format_y_axis(
     let sign = if grid_mark.value < 0.0 { "-" } else { "" };
     let formatted = format_with_thousands_separator(abs as f64);
 
-    format!("{}R${}", sign, formatted)
+    format!("{}R$ {}", sign, formatted)
 }
 
 pub(crate) fn format_with_thousands_separator(num: f64) -> String {
