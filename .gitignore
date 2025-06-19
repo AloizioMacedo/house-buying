@@ -11,3 +11,8 @@ wheels/
 
 config/config.toml
 data/outputs
+
+
+# Added by cargo
+
+/target
