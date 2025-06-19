@@ -9,8 +9,6 @@ If you are not familiar with it, install it and just run
 ```bash
 cargo run -r
 ```
-```
-```
 
 in the root of this repository.
 
