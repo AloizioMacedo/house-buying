@@ -114,6 +114,20 @@ impl eframe::App for MyApp {
                     }
                 }
                 ui.end_row();
+
+                ui.label(format!(
+                    "Money at End of Sim ({} months)",
+                    self.simulation.months_to_forecast
+                ));
+                match sim_output.time_series.last() {
+                    Some(v) => {
+                        ui.label(format!("R$ {:.2}", v));
+                    }
+                    None => {
+                        ui.label("NaN");
+                    }
+                }
+                ui.end_row();
             });
 
             let points = PlotPoints::from_ys_f64(&sim_output.time_series);
