@@ -5,6 +5,7 @@ mod calculation;
 
 use calculation::calculate_money_timeseries_after_months;
 use eframe::egui;
+use egui::Grid;
 use egui_plot::{Legend, Line, PlotPoints};
 
 fn main() -> eframe::Result {
@@ -126,10 +127,23 @@ impl eframe::App for MyApp {
                 self.buyer.fixed_monthly_expenses,
                 self.buyer.investment_monthly_interest,
             );
-            ui.label(format!(
-                "Monthly payment: R$ {}",
-                &sim_output.monthly_payment
-            ));
+            Grid::new("grid").show(ui, |ui| {
+                ui.label("Initial Money:");
+                ui.label(format!("R$ {:.2}", sim_output.time_series[0]));
+                ui.end_row();
+
+                ui.label("Monthly Payment:");
+                ui.label(format!("R$ {:.2}", sim_output.monthly_payment));
+                ui.end_row();
+
+                ui.label("Money After 1 Year:");
+                ui.label(format!("R$ {:.2}", sim_output.time_series[12 - 1]));
+                ui.end_row();
+
+                ui.label("Money After 5 Year:");
+                ui.label(format!("R$ {:.2}", sim_output.time_series[4 * 12 - 1]));
+                ui.end_row();
+            });
 
             let points = PlotPoints::from_ys_f64(&sim_output.time_series);
 
