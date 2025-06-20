@@ -115,12 +115,14 @@ pub(crate) fn calculate_money_timeseries_sac(
                 if yearly_extra_amortization >= value_to_pay_left {
                     money_left -= value_to_pay_left;
                     value_to_pay_left = 0.0;
-
-                    ends_after = (i + 1) as i32;
                 } else {
                     money_left -= yearly_extra_amortization;
                     value_to_pay_left -= yearly_extra_amortization;
                 }
+            }
+
+            if value_to_pay_left <= 0.0 {
+                ends_after = (i + 1) as i32;
             }
         }
 
