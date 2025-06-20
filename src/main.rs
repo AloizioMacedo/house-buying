@@ -7,7 +7,7 @@ use calculation::{
     AmortizationStrategyType, calculate_money_timeseries_price, calculate_money_timeseries_sac,
 };
 use eframe::egui;
-use egui::Grid;
+use egui::{Color32, Grid};
 use egui_plot::{Legend, Line, PlotPoints};
 use plotting::format_with_thousands_separator;
 
@@ -246,7 +246,10 @@ impl eframe::App for MyApp {
                         .allow_scroll(true)
                         .legend(Legend::default())
                         .show(ui, |plot_ui| {
-                            plot_ui.line(Line::new("Money in Account", money_in_account))
+                            plot_ui.line(
+                                Line::new("Money in Account", money_in_account)
+                                    .color(Color32::DARK_GREEN),
+                            )
                         })
                 }
                 PlotSelection::Payments => {
