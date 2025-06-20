@@ -29,6 +29,13 @@ fn main() -> eframe::Result {
     )
 }
 
+#[derive(Default, PartialEq, Eq)]
+enum PlotSelection {
+    #[default]
+    MoneyInAccount,
+    Payments,
+}
+
 #[derive(Default)]
 struct MyApp {
     buyer: model::Buyer,
@@ -36,6 +43,7 @@ struct MyApp {
     simulation: model::Simulation,
 
     strategy: calculation::AmortizationStrategyType,
+    plot_selection: PlotSelection,
 }
 
 impl eframe::App for MyApp {
@@ -107,6 +115,19 @@ impl eframe::App for MyApp {
                 );
             });
 
+            ui.horizontal(|ui| {
+                ui.selectable_value(
+                    &mut self.plot_selection,
+                    PlotSelection::MoneyInAccount,
+                    "Money In Account",
+                );
+                ui.selectable_value(
+                    &mut self.plot_selection,
+                    PlotSelection::Payments,
+                    "Payments",
+                );
+            });
+
             let sim_output = match self.strategy {
                 AmortizationStrategyType::Price => calculate_money_timeseries_price(
                     self.simulation.months_to_forecast,
@@ -153,24 +174,6 @@ impl eframe::App for MyApp {
                             ));
                         } else {
                             ui.label("First: R$ NaN");
-                        }
-                        if sim_output.monthly_payments.len() >= 12 {
-                            ui.label(format!(
-                                "One Year: R$ {};",
-                                format_with_thousands_separator(sim_output.monthly_payments[11])
-                            ));
-                        } else {
-                            ui.label("One Year: R$ NaN");
-                        }
-                        if sim_output.monthly_payments.len() >= 60 {
-                            ui.label(format!(
-                                "Five Years: R$ {};",
-                                format_with_thousands_separator(
-                                    sim_output.monthly_payments[60 - 1]
-                                )
-                            ));
-                        } else {
-                            ui.label("Five Years: R$ NaN;");
                         }
                         match sim_output.monthly_payments.last() {
                             Some(v) => {
@@ -232,17 +235,32 @@ impl eframe::App for MyApp {
                 ui.end_row();
             });
 
-            let points = PlotPoints::from_ys_f64(&sim_output.time_series);
+            match self.plot_selection {
+                PlotSelection::MoneyInAccount => {
+                    let money_in_account = PlotPoints::from_ys_f64(&sim_output.time_series);
 
-            egui_plot::Plot::new("plot")
-                .y_axis_formatter(plotting::format_y_axis)
-                .allow_zoom(false)
-                .allow_drag(false)
-                .allow_scroll(true)
-                .legend(Legend::default())
-                .show(ui, |plot_ui| {
-                    plot_ui.line(Line::new("Money in Account", points))
-                })
+                    egui_plot::Plot::new("plot")
+                        .y_axis_formatter(plotting::format_y_axis)
+                        .allow_zoom(false)
+                        .allow_drag(false)
+                        .allow_scroll(true)
+                        .legend(Legend::default())
+                        .show(ui, |plot_ui| {
+                            plot_ui.line(Line::new("Money in Account", money_in_account))
+                        })
+                }
+                PlotSelection::Payments => {
+                    let payments = PlotPoints::from_ys_f64(&sim_output.monthly_payments);
+
+                    egui_plot::Plot::new("plot")
+                        .y_axis_formatter(plotting::format_y_axis)
+                        .allow_zoom(false)
+                        .allow_drag(false)
+                        .allow_scroll(true)
+                        .legend(Legend::default())
+                        .show(ui, |plot_ui| plot_ui.line(Line::new("Payments", payments)))
+                }
+            }
         });
     }
 }
