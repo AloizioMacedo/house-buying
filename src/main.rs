@@ -2,14 +2,16 @@
 mod calculation;
 mod model;
 mod plotting;
+mod ui_components;
 
 use calculation::{
     AmortizationStrategyType, calculate_money_timeseries_price, calculate_money_timeseries_sac,
 };
 use eframe::egui;
-use egui::{Color32, Grid};
-use egui_plot::{Legend, Line, PlotPoints};
 use plotting::format_with_thousands_separator;
+use ui_components::{
+    render_buyer_params, render_house_params, render_kpis, render_plot, render_simulation_params,
+};
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
@@ -29,7 +31,7 @@ fn main() -> eframe::Result {
     )
 }
 
-#[derive(Default, PartialEq, Eq)]
+#[derive(Default, PartialEq, Eq, Clone, Copy)]
 enum PlotSelection {
     #[default]
     MoneyInAccount,
@@ -49,84 +51,14 @@ struct MyApp {
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Buyer params");
-            ui.add(
-                egui::Slider::new(&mut self.buyer.starting_money, 0.0..=2_000_000.0)
-                    .text("Starting Money"),
+            render_buyer_params(ui, &mut self.buyer);
+            render_house_params(ui, &mut self.house, self.strategy);
+            render_simulation_params(
+                ui,
+                &mut self.simulation,
+                &mut self.strategy,
+                &mut self.plot_selection,
             );
-            ui.add(
-                egui::Slider::new(&mut self.buyer.liquid_salary, 0.0..=100_000.0)
-                    .text("Liquid Salary"),
-            );
-            ui.add(
-                egui::Slider::new(&mut self.buyer.fixed_monthly_expenses, 0.0..=100_000.0)
-                    .text("Fixed Monthly Expenses"),
-            );
-            ui.add(
-                egui::Slider::new(&mut self.buyer.investment_monthly_interest, 0.0..=1.0)
-                    .text("Investment Monthly Interest"),
-            );
-            ui.add(
-                egui::Slider::new(&mut self.buyer.yearly_bonus, 0.0..=2_000_000.0)
-                    .text("Yearly Bonus"),
-            );
-            ui.heading("House Params");
-            ui.horizontal(|ui| {
-                ui.add(
-                    egui::Slider::new(&mut self.house.house_price, 0.0..=2_000_000.0)
-                        .text("House Price"),
-                );
-                if matches!(self.strategy, AmortizationStrategyType::Sac) {
-                    ui.add(
-                        egui::Slider::new(
-                            &mut self.house.yearly_extra_amortization,
-                            0.0..=2_000_000.0,
-                        )
-                        .text("Yearly Extra Amortization"),
-                    );
-                }
-            });
-
-            ui.add(
-                egui::Slider::new(&mut self.house.down_payment, 0.0..=2_000_000.0)
-                    .text("Down Payment"),
-            );
-            ui.add(
-                egui::Slider::new(&mut self.house.house_monthly_interest, 0.0..=1.0)
-                    .text("House Monthly Interest"),
-            );
-            ui.add(egui::Slider::new(&mut self.house.months_to_pay, 1..=360).text("Months To Pay"));
-            ui.heading("Simulation");
-            ui.add(
-                egui::Slider::new(&mut self.simulation.months_to_forecast, 1..=720)
-                    .text("Months To Simulate"),
-            );
-
-            ui.horizontal(|ui| {
-                ui.selectable_value(
-                    &mut self.strategy,
-                    AmortizationStrategyType::Sac,
-                    "Tabela SAC",
-                );
-                ui.selectable_value(
-                    &mut self.strategy,
-                    AmortizationStrategyType::Price,
-                    "Tabela PRICE",
-                );
-            });
-
-            ui.horizontal(|ui| {
-                ui.selectable_value(
-                    &mut self.plot_selection,
-                    PlotSelection::MoneyInAccount,
-                    "Money In Account",
-                );
-                ui.selectable_value(
-                    &mut self.plot_selection,
-                    PlotSelection::Payments,
-                    "Payments",
-                );
-            });
 
             let sim_output = match self.strategy {
                 AmortizationStrategyType::Price => calculate_money_timeseries_price(
@@ -156,114 +88,8 @@ impl eframe::App for MyApp {
                 ),
             };
 
-            Grid::new("grid").show(ui, |ui| {
-                ui.label("Initial Money:");
-                ui.label(format!(
-                    "R$ {}",
-                    format_with_thousands_separator(sim_output.time_series[0])
-                ));
-                ui.end_row();
-
-                ui.label("Monthly Payment:");
-                match self.strategy {
-                    AmortizationStrategyType::Sac => {
-                        if !sim_output.monthly_payments.is_empty() {
-                            ui.label(format!(
-                                "First: R$ {};",
-                                format_with_thousands_separator(sim_output.monthly_payments[0])
-                            ));
-                        } else {
-                            ui.label("First: R$ NaN");
-                        }
-                        match sim_output.monthly_payments.last() {
-                            Some(v) => {
-                                ui.label(format!(
-                                    "Last: R$ {};",
-                                    format_with_thousands_separator(*v)
-                                ));
-                            }
-                            None => {
-                                ui.label("Last: R$ NaN");
-                            }
-                        }
-                        ui.label(format!("Ends after {} months", sim_output.ends_after));
-                    }
-                    AmortizationStrategyType::Price => {
-                        ui.label(format!(
-                            "R$ {}",
-                            format_with_thousands_separator(sim_output.monthly_payments[0])
-                        ));
-                    }
-                }
-                ui.end_row();
-
-                ui.label("Money After 1 Year:");
-                match sim_output.time_series.get(12 - 1) {
-                    Some(v) => {
-                        ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
-                    }
-                    None => {
-                        ui.label("NaN");
-                    }
-                }
-                ui.end_row();
-
-                ui.label("Money After 5 Years:");
-                match sim_output.time_series.get(5 * 12 - 1) {
-                    Some(v) => {
-                        ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
-                    }
-                    None => {
-                        ui.label("NaN");
-                    }
-                }
-                ui.end_row();
-
-                ui.label(format!(
-                    "Money at End of Sim ({} months)",
-                    self.simulation.months_to_forecast
-                ));
-                match sim_output.time_series.last() {
-                    Some(v) => {
-                        ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
-                    }
-                    None => {
-                        ui.label("NaN");
-                    }
-                }
-
-                ui.end_row();
-            });
-
-            match self.plot_selection {
-                PlotSelection::MoneyInAccount => {
-                    let money_in_account = PlotPoints::from_ys_f64(&sim_output.time_series);
-
-                    egui_plot::Plot::new("plot")
-                        .y_axis_formatter(plotting::format_y_axis)
-                        .allow_zoom(false)
-                        .allow_drag(false)
-                        .allow_scroll(true)
-                        .legend(Legend::default())
-                        .show(ui, |plot_ui| {
-                            plot_ui.line(
-                                Line::new("Money in Account", money_in_account)
-                                    .color(Color32::DARK_GREEN),
-                            )
-                        })
-                }
-                PlotSelection::Payments => {
-                    let payments = PlotPoints::from_ys_f64(&sim_output.monthly_payments);
-
-                    egui_plot::Plot::new("plot")
-                        .y_axis_formatter(plotting::format_y_axis)
-                        .allow_zoom(false)
-                        .allow_drag(false)
-                        .allow_scroll(true)
-                        .legend(Legend::default())
-                        .show(ui, |plot_ui| plot_ui.line(Line::new("Payments", payments)))
-                }
-            }
+            render_kpis(ui, self.strategy, &sim_output, &self.simulation);
+            render_plot(ui, &sim_output, self.plot_selection);
         });
     }
 }
