@@ -10,18 +10,20 @@ use crate::{
 };
 
 pub(crate) fn render_buyer_params(ui: &mut Ui, buyer: &mut Buyer) {
-    ui.heading("Buyer params");
-    ui.add(egui::Slider::new(&mut buyer.starting_money, 0.0..=2_000_000.0).text("Starting Money"));
-    ui.add(egui::Slider::new(&mut buyer.liquid_salary, 0.0..=100_000.0).text("Liquid Salary"));
+    ui.heading("Parâmetros do Comprador");
+    ui.add(
+        egui::Slider::new(&mut buyer.starting_money, 0.0..=2_000_000.0).text("Dinheiro Inicial"),
+    );
+    ui.add(egui::Slider::new(&mut buyer.liquid_salary, 0.0..=100_000.0).text("Salário Líquido"));
     ui.add(
         egui::Slider::new(&mut buyer.fixed_monthly_expenses, 0.0..=100_000.0)
-            .text("Fixed Monthly Expenses"),
+            .text("Gastos Mensais"),
     );
     ui.add(
         egui::Slider::new(&mut buyer.investment_monthly_interest, 0.0..=1.0)
-            .text("Investment Monthly Interest"),
+            .text("Taxa de Lucro em Investimentos"),
     );
-    ui.add(egui::Slider::new(&mut buyer.yearly_bonus, 0.0..=2_000_000.0).text("Yearly Bonus"));
+    ui.add(egui::Slider::new(&mut buyer.yearly_bonus, 0.0..=2_000_000.0).text("Bônus Anual"));
 }
 
 pub(crate) fn render_house_params(
@@ -31,21 +33,21 @@ pub(crate) fn render_house_params(
 ) {
     ui.heading("House Params");
     ui.horizontal(|ui| {
-        ui.add(egui::Slider::new(&mut house.house_price, 0.0..=2_000_000.0).text("House Price"));
+        ui.add(
+            egui::Slider::new(&mut house.house_price, 0.0..=2_000_000.0)
+                .text("Preço Total da Casa"),
+        );
         if matches!(strategy, AmortizationStrategyType::Sac) {
             ui.add(
                 egui::Slider::new(&mut house.yearly_extra_amortization, 0.0..=2_000_000.0)
-                    .text("Yearly Extra Amortization"),
+                    .text("Amortização Extra Anual"),
             );
         }
     });
 
     ui.add(egui::Slider::new(&mut house.down_payment, 0.0..=2_000_000.0).text("Down Payment"));
-    ui.add(
-        egui::Slider::new(&mut house.house_monthly_interest, 0.0..=1.0)
-            .text("House Monthly Interest"),
-    );
-    ui.add(egui::Slider::new(&mut house.months_to_pay, 1..=360).text("Months To Pay"));
+    ui.add(egui::Slider::new(&mut house.house_monthly_interest, 0.0..=1.0).text("Juros Mensal"));
+    ui.add(egui::Slider::new(&mut house.months_to_pay, 1..=360).text("Número de Parcelas"));
 }
 
 pub(crate) fn render_simulation_params(
@@ -56,9 +58,9 @@ pub(crate) fn render_simulation_params(
 ) {
     ui.heading("Simulation");
     ui.add(
-        egui::Slider::new(&mut simulation.months_to_forecast, 1..=720).text("Months To Simulate"),
+        egui::Slider::new(&mut simulation.months_to_forecast, 1..=720).text("Meses para Simular"),
     );
-    ui.add(egui::Slider::new(&mut simulation.inflation, 0.0..=1.0).text("Inflation"));
+    ui.add(egui::Slider::new(&mut simulation.inflation, 0.0..=1.0).text("Inflação"));
 
     ui.horizontal(|ui| {
         ui.selectable_value(strategy, AmortizationStrategyType::Sac, "Tabela SAC");
@@ -69,7 +71,7 @@ pub(crate) fn render_simulation_params(
         ui.selectable_value(
             plot_selection,
             PlotSelection::MoneyInAccount,
-            "Money In Account",
+            "Dinheiro na Conta",
         );
         ui.selectable_value(plot_selection, PlotSelection::Payments, "Payments");
     });
@@ -82,33 +84,36 @@ pub(crate) fn render_kpis(
     simulation: &Simulation,
 ) {
     Grid::new("grid").show(ui, |ui| {
-        ui.label("Initial Money:");
+        ui.label("Dinheiro Inicial:");
         ui.label(format!(
             "R$ {}",
             format_with_thousands_separator(sim_output.time_series[0])
         ));
         ui.end_row();
 
-        ui.label("Monthly Payment:");
+        ui.label("Parcelas Mensais");
         match strategy {
             AmortizationStrategyType::Sac => {
                 if !sim_output.monthly_payments.is_empty() {
                     ui.label(format!(
-                        "First: R$ {};",
+                        "Primeira: R$ {};",
                         format_with_thousands_separator(sim_output.monthly_payments[0])
                     ));
                 } else {
-                    ui.label("First: R$ NaN");
+                    ui.label("Primeira: R$ NaN");
                 }
                 match sim_output.monthly_payments.last() {
                     Some(v) => {
-                        ui.label(format!("Last: R$ {};", format_with_thousands_separator(*v)));
+                        ui.label(format!(
+                            "Última: R$ {};",
+                            format_with_thousands_separator(*v)
+                        ));
                     }
                     None => {
-                        ui.label("Last: R$ NaN");
+                        ui.label("Última: R$ NaN");
                     }
                 }
-                ui.label(format!("Ends after {} months", sim_output.ends_after));
+                ui.label(format!("Termina depois de {} meses", sim_output.ends_after));
             }
             AmortizationStrategyType::Price => {
                 ui.label(format!(
@@ -119,7 +124,7 @@ pub(crate) fn render_kpis(
         }
         ui.end_row();
 
-        ui.label("Money After 1 Year:");
+        ui.label("Dinheiro depois de 1 ano:");
         match sim_output.time_series.get(12 - 1) {
             Some(v) => {
                 ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
@@ -130,7 +135,7 @@ pub(crate) fn render_kpis(
         }
         ui.end_row();
 
-        ui.label("Money After 5 Years:");
+        ui.label("Dinheiro depois de 5 anos:");
         match sim_output.time_series.get(5 * 12 - 1) {
             Some(v) => {
                 ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
@@ -142,7 +147,7 @@ pub(crate) fn render_kpis(
         ui.end_row();
 
         ui.label(format!(
-            "Money at End of Sim ({} months)",
+            "Dinheiro no fim da sim ({} months)",
             simulation.months_to_forecast
         ));
         match sim_output.time_series.last() {
@@ -175,7 +180,7 @@ pub(crate) fn render_plot(
                 .legend(Legend::default())
                 .show(ui, |plot_ui| {
                     plot_ui.line(
-                        Line::new("Money in Account", money_in_account).color(Color32::DARK_GREEN),
+                        Line::new("Dinheiro na Conta", money_in_account).color(Color32::DARK_GREEN),
                     )
                 });
         }
@@ -188,7 +193,9 @@ pub(crate) fn render_plot(
                 .allow_drag(false)
                 .allow_scroll(true)
                 .legend(Legend::default())
-                .show(ui, |plot_ui| plot_ui.line(Line::new("Payments", payments)));
+                .show(ui, |plot_ui| {
+                    plot_ui.line(Line::new("Pagamentos", payments))
+                });
         }
     }
 }
