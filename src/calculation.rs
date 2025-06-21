@@ -28,6 +28,7 @@ pub(crate) fn calculate_money_timeseries_price(
     fixed_monthly_expenses: f64,
     investment_monthly_interest: f64,
     yearly_bonus: f64,
+    inflation: f64,
 ) -> SimulationOutput {
     let mut time_series: Vec<f64> = Vec::new();
 
@@ -51,7 +52,7 @@ pub(crate) fn calculate_money_timeseries_price(
             money_left -= monthly_payment;
         }
 
-        money_left -= fixed_monthly_expenses;
+        money_left -= fixed_monthly_expenses * (1.0 + inflation).powi(i as i32);
 
         money_left *= 1.0 + investment_monthly_interest;
 
@@ -85,6 +86,7 @@ pub(crate) fn calculate_money_timeseries_sac(
     investment_monthly_interest: f64,
     yearly_bonus: f64,
     yearly_extra_amortization: f64,
+    inflation: f64,
 ) -> SimulationOutput {
     let mut time_series: Vec<f64> = Vec::new();
 
@@ -126,7 +128,7 @@ pub(crate) fn calculate_money_timeseries_sac(
             }
         }
 
-        money_left -= fixed_monthly_expenses;
+        money_left -= fixed_monthly_expenses * (1.0 + inflation).powi(i as i32);
 
         money_left *= 1.0 + investment_monthly_interest;
 

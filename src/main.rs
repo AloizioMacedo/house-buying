@@ -72,6 +72,7 @@ impl eframe::App for MyApp {
                     self.buyer.fixed_monthly_expenses,
                     self.buyer.investment_monthly_interest,
                     self.buyer.yearly_bonus,
+                    self.simulation.inflation,
                 ),
                 AmortizationStrategyType::Sac => calculate_money_timeseries_sac(
                     self.simulation.months_to_forecast,
@@ -85,6 +86,7 @@ impl eframe::App for MyApp {
                     self.buyer.investment_monthly_interest,
                     self.buyer.yearly_bonus,
                     self.house.yearly_extra_amortization,
+                    self.simulation.inflation,
                 ),
             };
 

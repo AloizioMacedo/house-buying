@@ -58,6 +58,7 @@ pub(crate) fn render_simulation_params(
     ui.add(
         egui::Slider::new(&mut simulation.months_to_forecast, 1..=720).text("Months To Simulate"),
     );
+    ui.add(egui::Slider::new(&mut simulation.inflation, 0.0..=1.0).text("Inflation"));
 
     ui.horizontal(|ui| {
         ui.selectable_value(strategy, AmortizationStrategyType::Sac, "Tabela SAC");

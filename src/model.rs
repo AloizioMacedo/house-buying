@@ -40,12 +40,14 @@ impl Default for House {
 
 pub(crate) struct Simulation {
     pub(crate) months_to_forecast: i32,
+    pub(crate) inflation: f64,
 }
 
 impl Default for Simulation {
     fn default() -> Self {
         Simulation {
             months_to_forecast: 120,
+            inflation: 0.004,
         }
     }
 }
