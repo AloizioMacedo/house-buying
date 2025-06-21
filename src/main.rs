@@ -5,7 +5,7 @@ mod plotting;
 mod ui_components;
 
 use calculation::{
-    AmortizationStrategyType, calculate_money_timeseries_price, calculate_money_timeseries_sac,
+    calculate_money_timeseries_price, calculate_money_timeseries_sac, AmortizationStrategyType,
 };
 use eframe::egui;
 use plotting::format_with_thousands_separator;
