@@ -103,7 +103,7 @@ pub(crate) fn calculate_money_timeseries_sac(
         ends_after = 0;
     }
 
-    for i in 0..(months_to_forecast as usize) {
+    for i in 0..(months_to_forecast as usize).max(n_months_to_pay as usize) {
         let is_end_of_year = (i + 1) % 12 == 0;
 
         // Subtractions are done before to safely underestimate returns.
@@ -142,7 +142,9 @@ pub(crate) fn calculate_money_timeseries_sac(
             money_left += yearly_bonus;
         }
 
-        time_series.push(money_left);
+        if i <= months_to_forecast as usize {
+            time_series.push(money_left);
+        }
     }
 
     SimulationOutput {
