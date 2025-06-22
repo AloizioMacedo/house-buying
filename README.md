@@ -30,7 +30,7 @@ em detrimento da outra.
 
 ## Tabela SAC
 
-A Tabela SAC (_Sistema de Amortização Constante), como o próprio
+A Tabela SAC (_Sistema de Amortização Constante_), como o próprio
 nome diz, é definida por estar amortizando o valor devido a uma taxa
 constante.
 
