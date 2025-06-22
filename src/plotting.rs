@@ -2,15 +2,14 @@ pub(crate) fn format_y_axis(
     grid_mark: egui_plot::GridMark,
     _range: &std::ops::RangeInclusive<f64>,
 ) -> String {
-    let abs = grid_mark.value.abs() as u64;
-    let sign = if grid_mark.value < 0.0 { "-" } else { "" };
-    let formatted = format_with_thousands_separator(abs as f64);
-
-    format!("{}R$ {}", sign, formatted)
+    format_with_thousands_separator(grid_mark.value)
 }
 
 pub(crate) fn format_with_thousands_separator(num: f64) -> String {
-    let integer_part = num.trunc();
+    let abs = num.abs();
+    let sign = if num < 0.0 { "-" } else { "" };
+
+    let integer_part = abs.trunc();
     let int_str = integer_part.to_string();
     let mut chars = int_str.chars().rev().collect::<Vec<_>>();
     let mut parts = Vec::new();
@@ -20,10 +19,12 @@ pub(crate) fn format_with_thousands_separator(num: f64) -> String {
         parts.push(chunk.chars().rev().collect::<String>());
     }
 
-    let decimal_part = num.fract();
+    let decimal_part = abs.fract();
     let decimal_part_str = format!("{:.2}", decimal_part).to_string();
 
-    parts.into_iter().rev().collect::<Vec<_>>().join(",") + &decimal_part_str[1..]
+    let string = parts.into_iter().rev().collect::<Vec<_>>().join(",") + &decimal_part_str[1..];
+
+    format!("{}R$ {}", sign, string)
 }
 
 #[cfg(test)]

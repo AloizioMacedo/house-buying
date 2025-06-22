@@ -81,7 +81,7 @@ pub(crate) fn render_kpis(
     Grid::new("grid").show(ui, |ui| {
         ui.label("Dinheiro Inicial:");
         ui.label(format!(
-            "R$ {}",
+            "{}",
             format_with_thousands_separator(sim_output.time_series[0])
         ));
         ui.end_row();
@@ -90,13 +90,13 @@ pub(crate) fn render_kpis(
         match strategy {
             AmortizationStrategyType::Sac => {
                 ui.label(format!(
-                    "Primeira: R$ {};",
+                    "Primeira: {};",
                     format_with_thousands_separator(
                         sim_output.monthly_payments.first().copied().unwrap_or(0.0)
                     )
                 ));
                 ui.label(format!(
-                    "Última: R$ {}",
+                    "Última: {}",
                     format_with_thousands_separator(
                         sim_output.monthly_payments.last().copied().unwrap_or(0.0)
                     )
@@ -104,7 +104,7 @@ pub(crate) fn render_kpis(
             }
             AmortizationStrategyType::Price => {
                 ui.label(format!(
-                    "R$ {}",
+                    "{}",
                     format_with_thousands_separator(
                         sim_output.monthly_payments.first().copied().unwrap_or(0.0)
                     )
@@ -120,7 +120,7 @@ pub(crate) fn render_kpis(
         ui.label("Dinheiro depois de 1 ano:");
         match sim_output.time_series.get(12 - 1) {
             Some(v) => {
-                ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
+                ui.label(format!("{}", format_with_thousands_separator(*v)));
             }
             None => {
                 ui.label("NaN");
@@ -131,7 +131,7 @@ pub(crate) fn render_kpis(
         ui.label("Dinheiro depois de 5 anos:");
         match sim_output.time_series.get(5 * 12 - 1) {
             Some(v) => {
-                ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
+                ui.label(format!("{}", format_with_thousands_separator(*v)));
             }
             None => {
                 ui.label("NaN");
@@ -145,7 +145,7 @@ pub(crate) fn render_kpis(
         ));
         match sim_output.time_series.last() {
             Some(v) => {
-                ui.label(format!("R$ {}", format_with_thousands_separator(*v)));
+                ui.label(format!("{}", format_with_thousands_separator(*v)));
             }
             None => {
                 ui.label("NaN");
