@@ -93,31 +93,26 @@ pub(crate) fn render_kpis(
         ui.label("Parcelas Mensais");
         match strategy {
             AmortizationStrategyType::Sac => {
-                if !sim_output.monthly_payments.is_empty() {
-                    ui.label(format!(
-                        "Primeira: R$ {};",
-                        format_with_thousands_separator(sim_output.monthly_payments[0])
-                    ));
-                } else {
-                    ui.label("Primeira: R$ NaN");
-                }
-                match sim_output.monthly_payments.last() {
-                    Some(v) => {
-                        ui.label(format!(
-                            "Última: R$ {};",
-                            format_with_thousands_separator(*v)
-                        ));
-                    }
-                    None => {
-                        ui.label("Última: R$ NaN");
-                    }
-                }
+                ui.label(format!(
+                    "Primeira: R$ {};",
+                    format_with_thousands_separator(
+                        sim_output.monthly_payments.first().copied().unwrap_or(0.0)
+                    )
+                ));
+                ui.label(format!(
+                    "Última: R$ {};",
+                    format_with_thousands_separator(
+                        sim_output.monthly_payments.last().copied().unwrap_or(0.0)
+                    )
+                ));
                 ui.label(format!("Termina depois de {} meses", sim_output.ends_after));
             }
             AmortizationStrategyType::Price => {
                 ui.label(format!(
                     "R$ {}",
-                    format_with_thousands_separator(sim_output.monthly_payments[0])
+                    format_with_thousands_separator(
+                        sim_output.monthly_payments.first().copied().unwrap_or(0.0)
+                    )
                 ));
             }
         }
