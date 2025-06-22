@@ -56,18 +56,19 @@ pub(crate) fn render_simulation_params(
     );
     ui.add(egui::Slider::new(&mut simulation.inflation, 0.0..=1.0).text("Inflação"));
 
-    ui.horizontal(|ui| {
+    Grid::new("buttons").show(ui, |ui| {
+        ui.label("Tabela:");
         ui.selectable_value(strategy, AmortizationStrategyType::Sac, "Tabela SAC");
         ui.selectable_value(strategy, AmortizationStrategyType::Price, "Tabela PRICE");
-    });
-
-    ui.horizontal(|ui| {
+        ui.end_row();
+        ui.label("Plot:");
         ui.selectable_value(
             plot_selection,
             PlotSelection::MoneyInAccount,
             "Dinheiro na Conta",
         );
         ui.selectable_value(plot_selection, PlotSelection::Payments, "Pagamentos");
+        ui.end_row();
     });
 }
 
