@@ -98,6 +98,8 @@ struct MyApp {
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
+            ui.style_mut().spacing.slider_width = 200.0;
+
             render_buyer_params(ui, &mut self.buyer);
             render_house_params(ui, &mut self.house, self.strategy);
             render_simulation_params(
