@@ -1,6 +1,10 @@
 # Simulador de Financiamentos
 
-<https://aloiziomacedo.github.io/house-buying/>
+[Simulador](https://aloiziomacedo.github.io/house-buying/) de impacto
+financeiro de um financiamento.
+
+Projeta impacto nas finanças pessoais, considerando coisas como rendimento,
+bônus anuais, gastos mensais, inflação, etc.
 
 ## Explicação Geral
 
