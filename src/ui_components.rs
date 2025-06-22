@@ -72,12 +72,7 @@ pub(crate) fn render_simulation_params(
     });
 }
 
-pub(crate) fn render_kpis(
-    ui: &mut Ui,
-    strategy: AmortizationStrategyType,
-    sim_output: &SimulationOutput,
-    simulation: &Simulation,
-) {
+pub(crate) fn render_kpis(ui: &mut Ui, sim_output: &SimulationOutput, simulation: &Simulation) {
     Grid::new("grid").show(ui, |ui| {
         ui.label("Dinheiro Inicial:");
         ui.label(format!(

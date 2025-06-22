@@ -139,7 +139,7 @@ impl eframe::App for MyApp {
                 ),
             };
 
-            render_kpis(ui, self.strategy, &sim_output, &self.simulation);
+            render_kpis(ui, &sim_output, &self.simulation);
             render_plot(ui, &sim_output, self.plot_selection);
         });
     }
