@@ -18,11 +18,11 @@ pub(crate) fn render_buyer_params(ui: &mut Ui, buyer: &mut Buyer) {
         egui::Slider::new(&mut buyer.fixed_monthly_expenses, 0.0..=100_000.0)
             .text("Gastos Mensais"),
     );
+    ui.add(egui::Slider::new(&mut buyer.yearly_bonus, 0.0..=2_000_000.0).text("Bônus Anual"));
     ui.add(
         egui::Slider::new(&mut buyer.investment_monthly_interest, 0.0..=1.0)
             .text("Taxa de Lucro em Investimentos"),
     );
-    ui.add(egui::Slider::new(&mut buyer.yearly_bonus, 0.0..=2_000_000.0).text("Bônus Anual"));
 }
 
 pub(crate) fn render_house_params(
@@ -31,22 +31,17 @@ pub(crate) fn render_house_params(
     strategy: AmortizationStrategyType,
 ) {
     ui.heading("Parâmetros do Financiamento");
-    ui.horizontal(|ui| {
-        ui.add(
-            egui::Slider::new(&mut house.house_price, 0.0..=2_000_000.0)
-                .text("Preço Total da Casa"),
-        );
-        if matches!(strategy, AmortizationStrategyType::Sac) {
-            ui.add(
-                egui::Slider::new(&mut house.yearly_extra_amortization, 0.0..=2_000_000.0)
-                    .text("Amortização Extra Anual"),
-            );
-        }
-    });
-
+    ui.add(
+        egui::Slider::new(&mut house.house_price, 0.0..=2_000_000.0).text("Preço Total da Casa"),
+    );
     ui.add(egui::Slider::new(&mut house.down_payment, 0.0..=2_000_000.0).text("Entrada"));
-    ui.add(egui::Slider::new(&mut house.house_monthly_interest, 0.0..=1.0).text("Juros Mensal"));
     ui.add(egui::Slider::new(&mut house.months_to_pay, 1..=360).text("Número de Parcelas"));
+    ui.add_enabled(
+        matches!(strategy, AmortizationStrategyType::Sac),
+        egui::Slider::new(&mut house.yearly_extra_amortization, 0.0..=2_000_000.0)
+            .text("Amortização Extra Anual"),
+    );
+    ui.add(egui::Slider::new(&mut house.house_monthly_interest, 0.0..=1.0).text("Juros Mensal"));
 }
 
 pub(crate) fn render_simulation_params(
