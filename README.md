@@ -65,13 +65,12 @@ De fato, seja $f$ o valor do financiamento, $n$ o número de parcelas.
 Por definição, o valor devido no mês $i$ será $f-i\cdot f/n$.
 Então, se $j$ é o juros, temos a seguinte relação no mês $i$:
 
-```math
-(f - i\cdot f/n)\cdot (1+j) - p_{i+1} = f - (i+1)\cdot f/n \\
-\implies p_{i+1} = f+fj-i\cdot f/n-i\cdot f\cdot j/n -f + i\cdot f/n + f/n \\
-\implies p_{i+1} = fj -i\cdot f \cdot j/n +  f/n \\
-\implies p_{i+1} = f/n +fj(1-i/n) \\
-\implies p_{i} = f/n +fj(1-(i-1)/n) \\
-```
+
+$$(f - i\cdot f/n)\cdot (1+j) - p_{i+1} = f - (i+1)\cdot f/n$$
+$$\implies p_{i+1} = f+fj-i\cdot f/n-i\cdot f\cdot j/n -f + i\cdot f/n + f/n$$
+$$\implies p_{i+1} = fj -i\cdot f \cdot j/n +  f/n$$
+$$\implies p_{i+1} = f/n +fj(1-i/n)$$
+$$\implies p_{i} = f/n +fj(1-(i-1)/n)$$
 
 A fórmula acima fornece o valor a ser pago no mês $i$. Note que, se isolássemos
 o fator multiplicativo da variável $i$, teríamos $-j(f/n)$. Esta é a propriedade
@@ -89,9 +88,9 @@ pagar em quatro parcelas.
 Se não houvesse juros, pagaríamos R$250.00. Vamos ver quanto deveremos 
 no final dos quatro meses, caso paguemos assim:
 
-R$1,000.00 -> R$1,010.00 -> R$760.00
-R$760.00 -> R$767.60 -> R$517.60
-R$517.60 -> R$522.78 -> R$272.78
+R$1,000.00 -> R$1,010.00 -> R$760.00\
+R$760.00 -> R$767.60 -> R$517.60\
+R$517.60 -> R$522.78 -> R$272.78\
 R$272.78 -> R$275.51 -> R$25.51
 
 Note que há um resto que continuamos devendo. É evidente que se pagássemos
@@ -127,10 +126,8 @@ d_{i} = d_0\cdot r^i-p\cdot r^{i-1}-p\cdot r^{i-2}-...-p\cdot r^{}-p
 
 Como queremos que $d_n=0$, temos a seguinte relação:
 
-```math
-~~~~~~~~~~0 = d_0\cdot r^n-p\cdot \sum_{i=0}^{n-1}r^i \\
-\implies p = \frac{d_0\cdot r^n}{(r^n -1)/(r-1)} \\
-\implies p = d_0\cdot \frac{r ^n(r-1)} {r^n-1} \\
-\implies p = d_0\cdot \frac{(r-1)} {1-1/r^n} \\
-\implies p = d_0\cdot \frac{j} {1-(1+j)^{-n}}
-```
+$$~~~~~~~~~~0 = d_0\cdot r^n-p\cdot \sum_{i=0}^{n-1}r^i$$
+$$\implies p = \frac{d_0\cdot r^n}{(r^n -1)/(r-1)}$$
+$$\implies p = d_0\cdot \frac{r ^n(r-1)} {r^n-1}$$
+$$\implies p = d_0\cdot \frac{(r-1)} {1-1/r^n}$$
+$$\implies p = d_0\cdot \frac{j} {1-(1+j)^{-n}}$$
