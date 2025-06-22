@@ -110,6 +110,6 @@ Como queremos que $d_n=0$, temos a seguinte relação:
 ~~~~~~~~~~0 = d_0\cdot r^n-p\cdot \sum_{i=0}^{n-1}r^i \\
 \implies p = \frac{d_0\cdot r^n}{(r^n -1)/(r-1)} \\
 \implies p = d_0\cdot \frac{r ^n(r-1)} {r^n-1} \\
-\implies p = d_0\cdot \frac{(r-1)} {1-1/r^n}
+\implies p = d_0\cdot \frac{(r-1)} {1-1/r^n} \\
 \implies p = d_0\cdot \frac{j} {1-(1+j)^{-n}}
 ```
