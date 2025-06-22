@@ -125,7 +125,7 @@ pub(crate) fn render_kpis(ui: &mut Ui, sim_output: &SimulationOutput, simulation
         ui.end_row();
 
         ui.label(format!(
-            "Dinheiro no fim da sim ({} months)",
+            "Dinheiro no fim da sim ({} meses)",
             simulation.months_to_forecast
         ));
         match sim_output.time_series.last() {
