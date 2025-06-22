@@ -2,11 +2,10 @@ use egui::{Color32, Grid, Ui};
 use egui_plot::{Legend, Line, PlotPoints};
 
 use crate::{
-    AmortizationStrategyType, PlotSelection,
     calculation::SimulationOutput,
     format_with_thousands_separator,
     model::{Buyer, House, Simulation},
-    plotting,
+    plotting, AmortizationStrategyType, PlotSelection,
 };
 
 pub(crate) fn render_buyer_params(ui: &mut Ui, buyer: &mut Buyer) {
@@ -31,7 +30,7 @@ pub(crate) fn render_house_params(
     house: &mut House,
     strategy: AmortizationStrategyType,
 ) {
-    ui.heading("House Params");
+    ui.heading("Parâmetros do Financiamento");
     ui.horizontal(|ui| {
         ui.add(
             egui::Slider::new(&mut house.house_price, 0.0..=2_000_000.0)
@@ -45,7 +44,7 @@ pub(crate) fn render_house_params(
         }
     });
 
-    ui.add(egui::Slider::new(&mut house.down_payment, 0.0..=2_000_000.0).text("Down Payment"));
+    ui.add(egui::Slider::new(&mut house.down_payment, 0.0..=2_000_000.0).text("Entrada"));
     ui.add(egui::Slider::new(&mut house.house_monthly_interest, 0.0..=1.0).text("Juros Mensal"));
     ui.add(egui::Slider::new(&mut house.months_to_pay, 1..=360).text("Número de Parcelas"));
 }
@@ -56,7 +55,7 @@ pub(crate) fn render_simulation_params(
     strategy: &mut AmortizationStrategyType,
     plot_selection: &mut PlotSelection,
 ) {
-    ui.heading("Simulation");
+    ui.heading("Simulação");
     ui.add(
         egui::Slider::new(&mut simulation.months_to_forecast, 1..=720).text("Meses para Simular"),
     );
@@ -73,7 +72,7 @@ pub(crate) fn render_simulation_params(
             PlotSelection::MoneyInAccount,
             "Dinheiro na Conta",
         );
-        ui.selectable_value(plot_selection, PlotSelection::Payments, "Payments");
+        ui.selectable_value(plot_selection, PlotSelection::Payments, "Pagamentos");
     });
 }
 
