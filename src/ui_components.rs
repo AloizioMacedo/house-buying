@@ -87,30 +87,20 @@ pub(crate) fn render_kpis(
         ui.end_row();
 
         ui.label("Parcelas Mensais");
-        match strategy {
-            AmortizationStrategyType::Sac => {
-                ui.label(format!(
-                    "Primeira: {};",
-                    format_with_thousands_separator(
-                        sim_output.monthly_payments.first().copied().unwrap_or(0.0)
-                    )
-                ));
-                ui.label(format!(
-                    "Última: {}",
-                    format_with_thousands_separator(
-                        sim_output.monthly_payments.last().copied().unwrap_or(0.0)
-                    )
-                ));
-            }
-            AmortizationStrategyType::Price => {
-                ui.label(format!(
-                    "{}",
-                    format_with_thousands_separator(
-                        sim_output.monthly_payments.first().copied().unwrap_or(0.0)
-                    )
-                ));
-            }
-        }
+        ui.label(format!(
+            "Primeira: {}",
+            format_with_thousands_separator(
+                sim_output.monthly_payments.first().copied().unwrap_or(0.0)
+            )
+        ));
+        ui.end_row();
+        ui.label("");
+        ui.label(format!(
+            "Última: {}",
+            format_with_thousands_separator(
+                sim_output.monthly_payments.last().copied().unwrap_or(0.0)
+            )
+        ));
         ui.end_row();
 
         ui.label("Parcels terminam em:");
