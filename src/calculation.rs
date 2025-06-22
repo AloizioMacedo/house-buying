@@ -99,6 +99,10 @@ pub(crate) fn calculate_money_timeseries_sac(
 
     let mut ends_after = n_months_to_pay;
 
+    if value_to_pay_left <= 0.0 {
+        ends_after = 0;
+    }
+
     for i in 0..(months_to_forecast as usize) {
         let is_end_of_year = (i + 1) % 12 == 0;
 
