@@ -57,6 +57,23 @@ um pouco de atenção, é fácil verificar também que o valor de cada parcela
 decai linearmente com taxa igual ao juros aplicado sobre a parcela "pura",
 sem juros.
 
+De fato, seja $f$ o valor do financiamento, $n$ o número de parcelas.
+Por definição, o valor devido no mês $i$ será $f-i\cdot f/n$.
+Então, se $j$ é o juros, temos a seguinte relação no mês $i$:
+
+```math
+(f - i\cdot f/n)\cdot (1+j) - p_{i+1} = f - (i+1)\cdot f/n \\
+\implies p_{i+1} = f+fj-i\cdot f/n-i\cdot f\cdot j/n -f + i\cdot f/n + f/n \\
+\implies p_{i+1} = fj -i\cdot f \cdot j/n +  f/n \\
+\implies p_{i+1} = f/n +fj(1-i/n) \\
+\implies p_{i} = f/n +fj(1-(i-1)/n) \\
+```
+
+A fórmula acima fornece o valor a ser pago no mês $i$. Note que, se isolássemos
+o fator multiplicativo da variável $i$, teríamos $-j(f/n)$. Esta é a propriedade
+que mencionamos anteriormente: o valor das parcelas decai linearmente com taxa
+igual ao juros ($j$) aplicado sobre a parcela "pura" ($f/n$).
+
 ## Tabela PRICE
 
 A Tabela PRICE é definida por deixar constante as parcelas pagas todo mês.
