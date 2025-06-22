@@ -96,12 +96,11 @@ pub(crate) fn render_kpis(
                     )
                 ));
                 ui.label(format!(
-                    "Última: R$ {};",
+                    "Última: R$ {}",
                     format_with_thousands_separator(
                         sim_output.monthly_payments.last().copied().unwrap_or(0.0)
                     )
                 ));
-                ui.label(format!("Termina depois de {} meses", sim_output.ends_after));
             }
             AmortizationStrategyType::Price => {
                 ui.label(format!(
@@ -112,6 +111,10 @@ pub(crate) fn render_kpis(
                 ));
             }
         }
+        ui.end_row();
+
+        ui.label("Parcels terminam em:");
+        ui.label(format!("{} meses", sim_output.ends_after));
         ui.end_row();
 
         ui.label("Dinheiro depois de 1 ano:");
